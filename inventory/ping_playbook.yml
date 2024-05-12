@@ -7,7 +7,7 @@
     - name: Ping Control Node from Cisco Device
       ios_command:
         commands:
-          - ping your_control_node_ip repeat 5
+          - ping ip your_control_node_ip repeat 5
       register: ping_output
 
     - name: Show ping results
