@@ -1,15 +1,15 @@
 ---
-- name: Cisco Device Pings Back Control Node
+- name: Execute and Verify Commands on Cisco Device
   hosts: cisco_devices
   gather_facts: no
 
   tasks:
-    - name: Ping Control Node from Cisco Device
+    - name: Show running configuration
       ios_command:
-        commands:
-          - ping ip your_control_node_ip repeat 5
-      register: ping_output
+        commands: 
+          - show running-config
+      register: output
 
-    - name: Show ping results
+    - name: Display the running configuration
       debug:
-        msg: "{{ ping_output.stdout_lines }}"
+        msg: "{{ output.stdout_lines }}"
