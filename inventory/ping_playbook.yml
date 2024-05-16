@@ -1,15 +1,14 @@
 ---
-- name: Execute and Verify Commands on Cisco Device
-  hosts: cisco_devices
+- name: Test Telnet Connection to Switch
+  hosts: switches
   gather_facts: no
-
   tasks:
-    - name: Show running configuration
+    - name: Run show version
       ios_command:
-        commands: 
-          - show running-config
+        commands:
+          - show version
       register: output
 
-    - name: Display the running configuration
+    - name: Display output
       debug:
-        msg: "{{ output.stdout_lines }}"
+        var: output.stdout
