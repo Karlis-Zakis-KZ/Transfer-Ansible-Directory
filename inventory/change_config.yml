@@ -1,0 +1,16 @@
+---
+- name: Apply configuration change to routers
+  hosts: routers
+  gather_facts: no
+  tasks:
+    - name: Push configuration change
+      ios_config:
+        lines:
+          - ip access-list standard TEST_ACL
+          - permit 192.168.0.0 0.0.255.255
+      provider:
+        host: "{{ ansible_host }}"
+        username: "{{ ansible_user }}"
+        password: "cisco"
+        authorize: yes
+        auth_pass: "cisco"
