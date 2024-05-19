@@ -8,5 +8,6 @@
         lines:
           - ip access-list standard TEST_ACL
           - permit 192.168.0.0 0.0.255.255
-        match: exact
-        before: show running-config | include ip access-list standard TEST_ACL
+        match: line
+        replace: line
+        running_config: "{{ lookup('ansible.netcommon.cli_command', 'show running-config') }}"
