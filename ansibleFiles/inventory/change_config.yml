@@ -11,6 +11,6 @@
         provider:
           host: "{{ ansible_host }}"
           username: "{{ ansible_user }}"
-          password: "cisco"
+          password: "{{ ansible_password }}"
           authorize: yes
-          auth_pass: "cisco"
+          auth_pass: "{{ ansible_password }}"
