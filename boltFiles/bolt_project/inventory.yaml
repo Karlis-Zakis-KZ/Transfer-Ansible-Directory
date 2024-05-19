@@ -8,7 +8,7 @@ groups:
           transport: ssh
           ssh:
             user: karlis
-            password: cisco
+            password: 'cisco'
             host-key-check: false
             native-ssh: true
       - uri: 192.168.21.12
@@ -17,7 +17,7 @@ groups:
           transport: ssh
           ssh:
             user: karlis
-            password: cisco
+            password: 'cisco'
             host-key-check: false
             native-ssh: true
       - uri: 192.168.21.13
@@ -26,7 +26,7 @@ groups:
           transport: ssh
           ssh:
             user: karlis
-            password: cisco
+            password: 'cisco'
             host-key-check: false
             native-ssh: true
       - uri: 192.168.21.14
@@ -35,6 +35,6 @@ groups:
           transport: ssh
           ssh:
             user: karlis
-            password: cisco
+            password: 'cisco'
             host-key-check: false
             native-ssh: true
