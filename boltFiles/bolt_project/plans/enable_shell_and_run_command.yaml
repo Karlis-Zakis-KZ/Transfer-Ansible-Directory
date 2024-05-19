@@ -11,10 +11,10 @@ parameters:
 steps:
   - name: upload_script
     upload:
-      source: /path/to/bolt_project/run_command.sh
+      source: /home/osboxes/Transfer-Ansible-Directory/boltFiles/bolt_project/run_command.sh
       destination: /tmp/run_command.sh
     targets: $targets
   - name: run_script
-    command: /tmp/run_command.sh $command
+    command: sh /tmp/run_command.sh $command
     targets: $targets
 return: "Ran enable_shell and then ${command} on $targets"
