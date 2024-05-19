@@ -11,6 +11,6 @@ parameters:
 steps:
   - name: run_combined_command
     command: |
-      term shell && $command
+      term shell && ${command}
     targets: $targets
-return: "Ran enable_shell and then $command on $targets"
+return: "Ran enable_shell and then ${command} on $targets"
