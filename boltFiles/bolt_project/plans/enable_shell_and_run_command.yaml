@@ -9,8 +9,12 @@ parameters:
     type: String
     description: The command to run after enabling the shell
 steps:
-  - name: run_combined_command
-    command: |
-      term shell && ${command}
+  - name: upload_script
+    upload:
+      source: /path/to/bolt_project/run_command.sh
+      destination: /tmp/run_command.sh
+    targets: $targets
+  - name: run_script
+    command: /tmp/run_command.sh $command
     targets: $targets
 return: "Ran enable_shell and then ${command} on $targets"
