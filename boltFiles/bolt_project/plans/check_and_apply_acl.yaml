@@ -8,33 +8,34 @@ parameters:
   password:
     type: String
   running_config:
-    type: Hash
+    type: Array
 steps:
   - name: check_acl
     eval: >
-      if 'ip access-list standard TEST_ACL' not in $running_config['stdout'][0] or 'permit 192.168.0.0 0.0.255.255' not in $running_config['stdout'][0] {
-        return {
-          'apply_acl': true
-        }
+      if ('ip access-list standard TEST_ACL' in $running_config[0]['result']['stdout'] and
+          'permit 192.168.0.0 0.0.255.255' in $running_config[0]['result']['stdout']) {
+        return {'apply_acl': false}
       } else {
-        return {
-          'apply_acl': false
-        }
+        return {'apply_acl': true}
       }
 
-  - name: apply_acl
-    if: $check_acl['apply_acl']
-    steps:
-      - name: apply_acl_task
-        task: bolt_project::ios_command
-        targets: $targets
-        parameters:
-          host: $targets
-          user: $user
-          password: $password
-          command: |
-            configure terminal
-            ip access-list standard TEST_ACL
-            permit 192.168.0.0 0.0.255.255
+  - name: maybe_apply_acl
+    eval: if $check_acl['apply_acl'] {
+      [
+        {
+          "name": "apply_acl_task",
+          "task": "bolt_project::ios_command",
+          "targets": $targets,
+          "parameters": {
+            "host": $targets[0]['uri'],
+            "user": $user,
+            "password": $password,
+            "command": "configure terminal\nip access-list standard TEST_ACL\npermit 192.168.0.0 0.0.255.255"
+          }
+        }
+      ]
+    } else {
+      []
+    }
 
 return: "ACL applied to ${targets} if necessary"
