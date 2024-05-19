@@ -1,0 +1,31 @@
+# bolt_project/plans/check_and_apply_acl.yaml
+version: 2
+parameters:
+  targets:
+    type: TargetSpec
+  user:
+    type: String
+  password:
+    type: String
+  running_config:
+    type: Hash
+steps:
+  - name: check_acl
+    eval: >
+      if 'ip access-list standard TEST_ACL' not in $running_config['stdout'] or 'permit 192.168.0.0 0.0.255.255' not in $running_config['stdout'] {
+        $should_apply = true
+      } else {
+        $should_apply = false
+      }
+
+  - name: apply_acl
+    task: bolt_project::ios_command
+    targets: $targets
+    parameters:
+      host: $targets
+      user: $user
+      password: $password
+      command: ip access-list standard TEST_ACL\npermit 192.168.0.0 0.0.255.255
+    when: $should_apply
+
+return: "ACL applied to ${targets} if necessary"

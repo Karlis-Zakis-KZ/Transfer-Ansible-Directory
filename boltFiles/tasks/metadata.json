@@ -1,0 +1,21 @@
+{
+    "description": "Run an IOS command",
+    "parameters": {
+      "host": {
+        "type": "String"
+      },
+      "user": {
+        "type": "String"
+      },
+      "password": {
+        "type": "String"
+      },
+      "command": {
+        "type": "String"
+      }
+    },
+    "implementations": [
+      {"name": "ios_command.sh", "requirements": ["shell"]}
+    ]
+  }
+  

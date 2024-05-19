@@ -1,0 +1,31 @@
+# bolt_project/plans/apply_config.yaml
+version: 2
+description: Apply configuration changes to routers
+parameters:
+  targets:
+    type: TargetSpec
+  user:
+    type: String
+    description: The SSH username
+  password:
+    type: String
+    description: The SSH password
+steps:
+  - name: gather_running_config
+    task: bolt_project::ios_command
+    targets: $targets
+    parameters:
+      host: $targets
+      user: $user
+      password: $password
+      command: show running-config
+
+  - name: check_and_apply_acl
+    plan: bolt_project::check_and_apply_acl
+    parameters:
+      targets: $targets
+      user: $user
+      password: $password
+      running_config: $gather_running_config
+
+return: "Configuration changes applied to ${targets}"
