@@ -1,3 +1,4 @@
+# bolt_project/plans/apply_config.yaml
 version: 2
 description: Apply configuration changes to routers
 parameters:
@@ -21,19 +22,15 @@ steps:
 
   - name: check_acl
     eval: |
-      if ($gather_running_config.results[0].value.stdout =~ /ip access-list standard TEST_ACL/ && 
-          $gather_running_config.results[0].value.stdout =~ /permit 192.168.0.0 0.0.255.255/) {
-        return {
-          apply_acl: false
-        }
+      if ($gather_running_config['results'][0]['value']['stdout'] =~ /ip access-list standard TEST_ACL/ && 
+          $gather_running_config['results'][0]['value']['stdout'] =~ /permit 192.168.0.0 0.0.255.255/) {
+        $apply_acl = false
       } else {
-        return {
-          apply_acl: true
-        }
+        $apply_acl = true
       }
 
   - name: maybe_apply_acl
-    if: $check_acl['apply_acl']
+    if: $apply_acl
     then:
       - name: apply_acl
         task: bolt_project::ios_command
