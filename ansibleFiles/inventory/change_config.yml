@@ -3,6 +3,12 @@
   hosts: routers
   gather_facts: no
   tasks:
+    - name: Gather current running config
+      ios_command:
+        commands:
+          - show running-config
+      register: running_config
+
     - name: Ensure ACL configuration is present
       ios_config:
         lines:
@@ -10,4 +16,4 @@
           - permit 192.168.0.0 0.0.255.255
         match: line
         replace: line
-        running_config: "{{ lookup('ansible.netcommon.cli_command', 'show running-config') }}"
+      when: "'ip access-list standard TEST_ACL' not in running_config.stdout[0] or 'permit 192.168.0.0 0.0.255.255' not in running_config.stdout[0]"
