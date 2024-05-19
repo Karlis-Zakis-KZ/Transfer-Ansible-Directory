@@ -3,8 +3,16 @@
   hosts: routers
   gather_facts: no
   tasks:
-    - name: Push configuration change
+    - name: Ensure ACL configuration is present
       ios_config:
         lines:
           - ip access-list standard TEST_ACL
           - permit 192.168.0.0 0.0.255.255
+        match: exact
+        before: show running-config | include ip access-list standard TEST_ACL
+        provider:
+          host: "{{ ansible_host }}"
+          username: "{{ ansible_user }}"
+          password: "{{ ansible_password }}"
+          authorize: yes
+          auth_pass: "{{ ansible_password }}"
