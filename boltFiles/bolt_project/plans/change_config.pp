@@ -8,8 +8,9 @@ plan bolt_project::change_config(
     'permit 192.168.0.0 0.0.255.255'
   ]
 
-  $targets.each |$t| {
-    $target = get_target($t)
+  $all_targets = get_targets($targets)
+
+  $all_targets.each |$target| {
     out::message("Running command on ${target.name}")
 
     $result = run_command($cmd, $target)
