@@ -15,7 +15,10 @@
       }
     },
     "implementations": [
-      {"name": "ios_command.sh", "requirements": ["shell"]}
+      {
+        "name": "ios_command.sh",
+        "requirements": ["shell"]
+      }
     ]
   }
   
