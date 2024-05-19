@@ -15,7 +15,7 @@ steps:
     task: bolt_project::ios_command
     targets: $targets
     parameters:
-      host: $targets
+      host: $targets[0]['uri']
       user: $user
       password: $password
       command: show running-config
@@ -26,6 +26,6 @@ steps:
       targets: $targets
       user: $user
       password: $password
-      running_config: $gather_running_config
+      running_config: $gather_running_config.results
 
 return: "Configuration changes applied to ${targets}"
