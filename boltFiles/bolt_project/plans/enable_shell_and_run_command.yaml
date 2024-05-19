@@ -9,13 +9,8 @@ parameters:
     type: String
     description: The command to run after enabling the shell
 steps:
-  - name: enable_shell
-    command: term shell
+  - name: run_combined_command
+    command: |
+      term shell && $command
     targets: $targets
-  - name: configure_shell
-    command: shell processing full
-    targets: $targets
-  - name: run_command
-    command: $command
-    targets: $targets
-return: "Ran enable_shell, configured shell, and then $command on $targets"
+return: "Ran enable_shell and then $command on $targets"
