@@ -11,32 +11,30 @@ parameters:
     type: Array
 steps:
   - name: check_acl
-    eval: >
-      if ('ip access-list standard TEST_ACL' in $running_config[0]['result']['stdout'] and
-          'permit 192.168.0.0 0.0.255.255' in $running_config[0]['result']['stdout']) {
+    eval: |
+      if ('ip access-list standard TEST_ACL' in $running_config[0]['stdout'] and
+          'permit 192.168.0.0 0.0.255.255' in $running_config[0]['stdout']) {
         return {'apply_acl': false}
       } else {
         return {'apply_acl': true}
       }
 
   - name: maybe_apply_acl
-    eval: |
-      if $check_acl['apply_acl'] {
-        [
-          {
-            "name": "apply_acl_task",
-            "task": "bolt_project::ios_command",
-            "targets": $targets,
-            "parameters": {
-              "host": $targets[0]['uri'],
-              "user": $user,
-              "password": $password,
-              "command": "configure terminal\nip access-list standard TEST_ACL\npermit 192.168.0.0 0.0.255.255"
-            }
-          }
-        ]
-      } else {
-        []
-      }
+    if: $check_acl['apply_acl']
+    then:
+      - name: apply_acl_task
+        task: bolt_project::ios_command
+        targets: $targets
+        parameters:
+          host: $targets[0]['uri']
+          user: $user
+          password: $password
+          command: |
+            configure terminal
+            ip access-list standard TEST_ACL
+            permit 192.168.0.0 0.0.255.255
+    else:
+      - name: noop
+        eval: "return {}"
 
 return: "ACL applied to ${targets} if necessary"
