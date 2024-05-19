@@ -10,7 +10,7 @@ plan bolt_project::change_config(
   $targets.each |$target| {
     # Gather current running config
     $result = run_task('cisco_ios::command', $target, { 'commands' => $cmds })
-    $running_config = $result[0]['result']['output']
+    $running_config = $result[0]['result']['result']
 
     # Check if the ACL configuration is already present
     if !($running_config =~ /ip access-list standard TEST_ACL/ and $running_config =~ /permit 192.168.0.0 0.0.255.255/) {
