@@ -11,7 +11,6 @@ groups:
             password: cisco
             host-key-check: false
             native-ssh: true
-            ssh-config-file: "~/.ssh/config_bolt"
       - uri: 192.168.21.12
         name: R2
         config:
@@ -21,7 +20,6 @@ groups:
             password: cisco
             host-key-check: false
             native-ssh: true
-            ssh-config-file: "~/.ssh/config_bolt"
       - uri: 192.168.21.13
         name: R3
         config:
@@ -31,7 +29,6 @@ groups:
             password: cisco
             host-key-check: false
             native-ssh: true
-            ssh-config-file: "~/.ssh/config_bolt"
       - uri: 192.168.21.14
         name: R4
         config:
@@ -41,4 +38,3 @@ groups:
             password: cisco
             host-key-check: false
             native-ssh: true
-            ssh-config-file: "~/.ssh/config_bolt"
