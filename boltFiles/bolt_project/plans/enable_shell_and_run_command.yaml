@@ -9,12 +9,10 @@ parameters:
     type: String
     description: The command to run after enabling the shell
 steps:
-  - name: upload_script
-    upload:
-      source: ./run_command.sh
-      destination: /tmp/run_command.sh
+  - name: enable_shell
+    command: term shell
     targets: $targets
-  - name: run_script
-    command: sh /tmp/run_command.sh $command
+  - name: run_command
+    command: $command
     targets: $targets
 return: "Ran enable_shell and then ${command} on $targets"
