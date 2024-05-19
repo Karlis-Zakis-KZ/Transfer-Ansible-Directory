@@ -11,11 +11,11 @@ parameters:
 steps:
   - name: check_acl
     eval: |
-      if $running_config[0]['value']['stdout'] =~ 'ip access-list standard TEST_ACL' && 
-         $running_config[0]['value']['stdout'] =~ 'permit 192.168.0.0 0.0.255.255' {
-        $apply_acl = false
+      $apply_acl = if ($running_config[0]['value']['stdout'] =~ 'ip access-list standard TEST_ACL' && 
+                       $running_config[0]['value']['stdout'] =~ 'permit 192.168.0.0 0.0.255.255') {
+        false
       } else {
-        $apply_acl = true
+        true
       }
       return {'apply_acl': $apply_acl}
 
