@@ -1,0 +1,21 @@
+# bolt_project/plans/enable_shell_and_run_command.yaml
+version: 2
+description: A plan to enable the shell and run a command
+parameters:
+  targets:
+    type: TargetSpec
+    description: A list of targets to run actions on
+  command:
+    type: String
+    description: The command to run after enabling the shell
+steps:
+  - name: enable_shell
+    command: term shell
+    targets: $targets
+  - name: configure_shell
+    command: shell processing full
+    targets: $targets
+  - name: run_command
+    command: $command
+    targets: $targets
+return: "Ran enable_shell, configured shell, and then $command on $targets"
