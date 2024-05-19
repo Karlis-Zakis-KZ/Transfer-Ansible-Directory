@@ -20,22 +20,23 @@ steps:
       }
 
   - name: maybe_apply_acl
-    eval: if $check_acl['apply_acl'] {
-      [
-        {
-          "name": "apply_acl_task",
-          "task": "bolt_project::ios_command",
-          "targets": $targets,
-          "parameters": {
-            "host": $targets[0]['uri'],
-            "user": $user,
-            "password": $password,
-            "command": "configure terminal\nip access-list standard TEST_ACL\npermit 192.168.0.0 0.0.255.255"
+    eval: |
+      if $check_acl['apply_acl'] {
+        [
+          {
+            "name": "apply_acl_task",
+            "task": "bolt_project::ios_command",
+            "targets": $targets,
+            "parameters": {
+              "host": $targets[0]['uri'],
+              "user": $user,
+              "password": $password,
+              "command": "configure terminal\nip access-list standard TEST_ACL\npermit 192.168.0.0 0.0.255.255"
+            }
           }
-        }
-      ]
-    } else {
-      []
-    }
+        ]
+      } else {
+        []
+      }
 
 return: "ACL applied to ${targets} if necessary"
