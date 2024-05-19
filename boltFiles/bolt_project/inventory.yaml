@@ -10,7 +10,8 @@ groups:
             user: karlis
             password: cisco
             host-key-check: false
-            ssh-command: 'ssh -o Ciphers=aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc'
+            native-ssh: true
+            ssh-config-file: "~/.ssh/config_bolt"
       - uri: 192.168.21.12
         name: R2
         config:
@@ -19,7 +20,8 @@ groups:
             user: karlis
             password: cisco
             host-key-check: false
-            ssh-command: 'ssh -o Ciphers=aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc'
+            native-ssh: true
+            ssh-config-file: "~/.ssh/config_bolt"
       - uri: 192.168.21.13
         name: R3
         config:
@@ -28,7 +30,8 @@ groups:
             user: karlis
             password: cisco
             host-key-check: false
-            ssh-command: 'ssh -o Ciphers=aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc'
+            native-ssh: true
+            ssh-config-file: "~/.ssh/config_bolt"
       - uri: 192.168.21.14
         name: R4
         config:
@@ -37,4 +40,5 @@ groups:
             user: karlis
             password: cisco
             host-key-check: false
-            ssh-command: 'ssh -o Ciphers=aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc'
+            native-ssh: true
+            ssh-config-file: "~/.ssh/config_bolt"
