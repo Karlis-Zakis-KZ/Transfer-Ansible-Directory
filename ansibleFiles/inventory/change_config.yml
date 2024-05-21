@@ -1,4 +1,3 @@
-# playbook.yml
 ---
 - name: Apply configuration change to routers
   hosts: routers
@@ -13,7 +12,7 @@
     - name: Ensure ACL configuration is present
       ios_config:
         lines:
-          - ip access-list standard TEST_ACL
           - permit 192.168.0.0 0.0.255.255
+        parents: ip access-list standard TEST_ACL
         match: line
         replace: line
