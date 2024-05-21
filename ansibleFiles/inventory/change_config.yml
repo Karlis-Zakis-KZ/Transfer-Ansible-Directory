@@ -1,3 +1,4 @@
+# playbook.yml
 ---
 - name: Apply configuration change to routers
   hosts: routers
@@ -13,7 +14,7 @@
       ios_config:
         lines:
           - ip access-list standard TEST_ACL
-          - permit 192.168.0.0 0.0.255.255
+          - permit {{ ip_range }} {{ wildcard_mask }}
         match: line
         replace: line
-      when: "'ip access-list standard TEST_ACL' not in running_config.stdout[0] or 'permit 192.168.0.0 0.0.255.255' not in running_config.stdout[0]"
+      when: "'ip access-list standard TEST_ACL' not in running_config.stdout[0] or 'permit {{ ip_range }} {{ wildcard_mask }}' not in running_config.stdout[0]"
