@@ -22,6 +22,15 @@ def get_packets_sent(interface="ens33"):
         return int(match.group(1))
     return 0
 
+# Function to check connectivity to devices using Ansible ping module
+def check_connectivity(inventory):
+    result = subprocess.run(
+        ["ansible", "-i", inventory, "all", "-m", "ping"],
+        capture_output=True,
+        text=True
+    )
+    return result.stdout
+
 # Function to run the Ansible playbook
 def run_playbook(ip_range, wildcard_mask, interface, inventory):
     start_time = time.time()
@@ -55,6 +64,11 @@ def run_playbook(ip_range, wildcard_mask, interface, inventory):
 def main():
     interface = "ens33"
     inventory = "hosts.ini"
+
+    # Check connectivity
+    connectivity_check = check_connectivity(inventory)
+    print("Connectivity check result:")
+    print(connectivity_check)
 
     results = []
 
