@@ -6,7 +6,7 @@ targets:
       transport: ssh
       ssh:
         user: karlis
-        password: cisco  # Ensure this line is present
+        password: cisco
         host-key-check: false
   - uri: 192.168.21.12
     name: R2
