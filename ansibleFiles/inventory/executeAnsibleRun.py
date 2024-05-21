@@ -1,4 +1,3 @@
-import os
 import subprocess
 import time
 import json
@@ -12,7 +11,7 @@ def generate_ip_range():
     return ip_base, wildcard_mask
 
 # Function to get the number of packets sent using ifconfig
-def get_packets_sent(interface="eth0"):
+def get_packets_sent(interface="ens33"):
     result = subprocess.run(
         ["ifconfig", interface],
         capture_output=True,
@@ -24,11 +23,11 @@ def get_packets_sent(interface="eth0"):
     return 0
 
 # Function to run the Ansible playbook
-def run_playbook(ip_range, wildcard_mask):
+def run_playbook(ip_range, wildcard_mask, interface):
     start_time = time.time()
 
     # Capture packets sent before running the playbook
-    initial_packets_sent = get_packets_sent()
+    initial_packets_sent = get_packets_sent(interface)
 
     # Run the ansible playbook with the given variables
     result = subprocess.run(
@@ -43,7 +42,7 @@ def run_playbook(ip_range, wildcard_mask):
     )
 
     # Capture packets sent after running the playbook
-    final_packets_sent = get_packets_sent()
+    final_packets_sent = get_packets_sent(interface)
     packets_sent = final_packets_sent - initial_packets_sent
 
     end_time = time.time()
@@ -53,11 +52,13 @@ def run_playbook(ip_range, wildcard_mask):
 
 # Main function to run the playbook 10 times with different configurations
 def main():
+    interface = "ens33"
+
     results = []
 
     for i in range(10):
         ip_range, wildcard_mask = generate_ip_range()
-        duration, packets_sent = run_playbook(ip_range, wildcard_mask)
+        duration, packets_sent = run_playbook(ip_range, wildcard_mask, interface)
         results.append({
             "run": i + 1,
             "ip_range": ip_range,
