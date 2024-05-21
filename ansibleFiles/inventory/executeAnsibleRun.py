@@ -48,12 +48,9 @@ def run_playbook(ip_range, wildcard_mask, acl_name, interface, inventory):
             "-e", f"wildcard_mask={wildcard_mask}",
             "-e", f"acl_name={acl_name}"
         ],
-        capture_output=True,
-        text=True
+        stdout=subprocess.DEVNULL,  # Redirect stdout to /dev/null
+        stderr=subprocess.DEVNULL   # Redirect stderr to /dev/null
     )
-    print("ansible-playbook output:")
-    print(result.stdout)
-    print(result.stderr)
     stop_tcpdump(tcpdump_process)
     packets_sent = count_packets(pcap_file)
     end_time = time.time()

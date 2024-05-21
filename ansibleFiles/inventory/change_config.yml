@@ -8,9 +8,10 @@
           - show running-config
       register: running_config
 
-    - name: Debug current running config
-      debug:
-        msg: "{{ running_config.stdout[0] }}"
+    # Comment out or remove this task to stop printing the running config
+    # - name: Debug current running config
+    #   debug:
+    #     msg: "{{ running_config.stdout[0] }}"
 
     - name: Ensure ACL configuration is present
       ios_config:
