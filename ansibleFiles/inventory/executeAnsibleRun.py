@@ -10,14 +10,14 @@ def generate_ip_range():
     wildcard_mask = "0.0.255.255"
     return ip_base, wildcard_mask
 
-# Function to get the number of packets sent using ifconfig
+# Function to get the number of packets sent using netstat
 def get_packets_sent(interface="ens33"):
     result = subprocess.run(
-        ["ifconfig", interface],
+        ["netstat", "-i"],
         capture_output=True,
         text=True
     )
-    match = re.search(r"TX packets (\d+)", result.stdout)
+    match = re.search(rf"{interface}\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)", result.stdout)
     if match:
         return int(match.group(1))
     return 0
