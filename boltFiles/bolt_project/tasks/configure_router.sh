@@ -1,8 +1,5 @@
 #!/bin/sh
-
-ssh karlis@$TARGET_NAME << EOF
-configure terminal
+echo "configure terminal
 hostname $TARGET_NAME
 exit
-write memory
-EOF
+write memory"
