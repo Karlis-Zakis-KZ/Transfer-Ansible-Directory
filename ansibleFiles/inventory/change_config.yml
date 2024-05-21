@@ -1,27 +1,18 @@
 ---
-- name: Apply random configuration change to routers
-  hosts: routers
+- name: Apply configuration change to routers
+  hosts: all
   gather_facts: no
   tasks:
-    - name: Generate random IP address and wildcard mask
-      set_fact:
-        random_ip: "{{ '192.168.' ~ (100 + 10|random) ~ '.0' }}"
-        wildcard_mask: "0.0.255.255"
-
     - name: Gather current running config
       ios_command:
         commands:
           - show running-config
       register: running_config
 
-    - name: Ensure random ACL configuration is present
+    - name: Ensure ACL configuration is present
       ios_config:
         lines:
-          - permit {{ random_ip }} {{ wildcard_mask }}
+          - permit {{ ip_range }} {{ wildcard_mask }}
         parents: ip access-list standard TEST_ACL
-        match: line
-        replace: line
+      when: "'ip access-list standard TEST_ACL' not in running_config.stdout[0] or 'permit {{ ip_range }} {{ wildcard_mask }}' not in running_config.stdout[0]"
 
-    - name: Debug random values
-      debug:
-        msg: "Random IP: {{ random_ip }} Wildcard Mask: {{ wildcard_mask }}"
