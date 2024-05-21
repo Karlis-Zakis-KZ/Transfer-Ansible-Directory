@@ -7,7 +7,8 @@ import re
 def generate_ip_range():
     ip_base = f"192.168.{random.randint(0, 255)}.0"
     wildcard_mask = "0.0.255.255"
-    return ip_base, wildcard_mask
+    acl_name = f"TEST_ACL_{random.randint(1, 1000)}"
+    return ip_base, wildcard_mask, acl_name
 
 def start_tcpdump(interface="ens33", file_prefix="tcpdump_output"):
     pcap_file = f"{file_prefix}.pcap"
@@ -35,7 +36,7 @@ def count_packets(pcap_file):
         return int(match.group(1))
     return 0
 
-def run_playbook(ip_range, wildcard_mask, interface, inventory):
+def run_playbook(ip_range, wildcard_mask, acl_name, interface, inventory):
     start_time = time.time()
     tcpdump_process, pcap_file = start_tcpdump(interface)
     result = subprocess.run(
@@ -44,7 +45,8 @@ def run_playbook(ip_range, wildcard_mask, interface, inventory):
             "-i", inventory,
             "change_config.yml",
             "-e", f"ip_range={ip_range}",
-            "-e", f"wildcard_mask={wildcard_mask}"
+            "-e", f"wildcard_mask={wildcard_mask}",
+            "-e", f"acl_name={acl_name}"
         ],
         capture_output=True,
         text=True
@@ -70,12 +72,13 @@ def main():
     print(connectivity_check.stdout)
     results = []
     for i in range(10):
-        ip_range, wildcard_mask = generate_ip_range()
-        duration, packets_sent = run_playbook(ip_range, wildcard_mask, interface, inventory)
+        ip_range, wildcard_mask, acl_name = generate_ip_range()
+        duration, packets_sent = run_playbook(ip_range, wildcard_mask, acl_name, interface, inventory)
         results.append({
             "run": i + 1,
             "ip_range": ip_range,
             "wildcard_mask": wildcard_mask,
+            "acl_name": acl_name,
             "duration": duration,
             "network_packets_sent": packets_sent
         })

@@ -1,4 +1,3 @@
----
 - name: Apply configuration change to routers
   hosts: all
   gather_facts: no
@@ -17,4 +16,5 @@
       ios_config:
         lines:
           - permit {{ ip_range }} {{ wildcard_mask }}
-        parents: ip access-list standard TEST_ACL
+        parents: ip access-list standard {{ acl_name }}
+      when: "'ip access-list standard {{ acl_name }}' not in running_config.stdout[0] or 'permit {{ ip_range }} {{ wildcard_mask }}' not in running_config.stdout[0]"
