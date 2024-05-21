@@ -4,7 +4,7 @@ import pandas as pd
 
 def run_playbook():
     result = subprocess.run(
-        ["ansible-playbook", "your_playbook.yml"],
+        ["ansible-playbook", "change_config.yml"],
         capture_output=True,
         text=True
     )
@@ -41,7 +41,7 @@ def main():
     for i in range(num_runs):
         print(f"Run {i+1}:")
         # Start tcpdump
-        run_tcpdump(interface="eth0", duration=10)
+        run_tcpdump(interface="ens33", duration=10)
         
         # Run the playbook
         stdout, stderr = run_playbook()
