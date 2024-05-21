@@ -1,87 +1,72 @@
 import subprocess
 import time
-import json
-import random
-import re
+import pandas as pd
 
-def generate_ip_range():
-    ip_base = f"192.168.{random.randint(0, 255)}.0"
-    wildcard_mask = "0.0.255.255"
-    return ip_base, wildcard_mask
-
-def start_tcpdump(interface="ens33", file_prefix="tcpdump_output"):
-    pcap_file = f"{file_prefix}.pcap"
-    process = subprocess.Popen(
-        ["sudo", "tcpdump", "-i", interface, "-w", pcap_file],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-    return process, pcap_file
-
-def stop_tcpdump(process):
-    process.terminate()
-    process.wait()
-
-def count_packets(pcap_file):
+def run_playbook():
     result = subprocess.run(
-        ["capinfos", pcap_file],
+        ["ansible-playbook", "your_playbook.yml"],
         capture_output=True,
         text=True
     )
-    print("capinfos output:")
-    print(result.stdout)
-    match = re.search(r"Number of packets\s+:\s+(\d+)", result.stdout)
-    if match:
-        return int(match.group(1))
-    return 0
+    return result.stdout, result.stderr
 
-def run_playbook(ip_range, wildcard_mask, interface, inventory):
-    start_time = time.time()
-    tcpdump_process, pcap_file = start_tcpdump(interface)
+def run_tcpdump(interface, duration=10):
+    tcpdump_cmd = [
+        "sudo", "tcpdump", "-i", interface, "-w", "tcpdump_output.pcap", "-G", str(duration), "-W", "1"
+    ]
+    subprocess.run(tcpdump_cmd)
+
+def parse_capinfos():
     result = subprocess.run(
-        [
-            "ansible-playbook",
-            "-i", inventory,
-            "change_config.yml",
-            "-e", f"ip_range={ip_range}",
-            "-e", f"wildcard_mask={wildcard_mask}"
-        ],
+        ["capinfos", "tcpdump_output.pcap"],
         capture_output=True,
         text=True
     )
-    print("ansible-playbook output:")
-    print(result.stdout)
-    print(result.stderr)
-    stop_tcpdump(tcpdump_process)
-    packets_sent = count_packets(pcap_file)
-    end_time = time.time()
-    duration = end_time - start_time
-    return duration, packets_sent
+    return result.stdout
+
+def extract_packet_info(capinfos_output):
+    lines = capinfos_output.splitlines()
+    info = {}
+    for line in lines:
+        if line.startswith("Number of packets:"):
+            info['packets'] = int(line.split(":")[1].strip())
+        elif line.startswith("Capture duration:"):
+            info['duration'] = float(line.split(":")[1].strip().split()[0])
+    return info
 
 def main():
-    interface = "ens33"
-    inventory = "hosts.ini"
-    connectivity_check = subprocess.run(
-        ["ansible", "-i", inventory, "all", "-m", "ping"],
-        capture_output=True,
-        text=True
-    )
-    print("Connectivity check result:")
-    print(connectivity_check.stdout)
+    num_runs = 10
     results = []
-    for i in range(10):
-        ip_range, wildcard_mask = generate_ip_range()
-        duration, packets_sent = run_playbook(ip_range, wildcard_mask, interface, inventory)
+
+    for i in range(num_runs):
+        print(f"Run {i+1}:")
+        # Start tcpdump
+        run_tcpdump(interface="eth0", duration=10)
+        
+        # Run the playbook
+        stdout, stderr = run_playbook()
+        print("Playbook output:")
+        print(stdout)
+        if stderr:
+            print("Errors:")
+            print(stderr)
+        
+        # Parse tcpdump output
+        capinfos_output = parse_capinfos()
+        packet_info = extract_packet_info(capinfos_output)
+        
         results.append({
-            "run": i + 1,
-            "ip_range": ip_range,
-            "wildcard_mask": wildcard_mask,
-            "duration": duration,
-            "network_packets_sent": packets_sent
+            "run": i+1,
+            "duration": packet_info.get('duration', 0),
+            "packets": packet_info.get('packets', 0)
         })
-        print(f"Run {i+1}: Duration={duration:.2f}s, Network Packets Sent={packets_sent}")
-    with open("results.json", "w") as f:
-        json.dump(results, f, indent=4)
+        
+        print(f"Run {i+1}: Duration={packet_info.get('duration', 0)}s, Packets={packet_info.get('packets', 0)}")
+        time.sleep(1)  # Optional: Add delay between runs
+
+    df = pd.DataFrame(results)
+    df.to_csv("results.csv", index=False)
+    print("Results saved to results.csv")
 
 if __name__ == "__main__":
     main()
