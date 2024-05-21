@@ -14,5 +14,6 @@
         lines:
           - permit {{ ip_range }} {{ wildcard_mask }}
         parents: ip access-list standard TEST_ACL
-      when: "'ip access-list standard TEST_ACL' not in running_config.stdout[0] or 'permit {{ ip_range }} {{ wildcard_mask }}' not in running_config.stdout[0]"
-
+      when: 
+        - "'ip access-list standard TEST_ACL' not in running_config.stdout[0]"
+        - "'permit {{ ip_range }} {{ wildcard_mask }}' not in running_config.stdout[0]"
