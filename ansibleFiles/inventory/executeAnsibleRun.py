@@ -10,33 +10,39 @@ def generate_ip_range():
     wildcard_mask = "0.0.255.255"
     return ip_base, wildcard_mask
 
-# Function to get the number of packets sent using netstat
-def get_packets_sent(interface="ens33"):
+# Function to start tcpdump
+def start_tcpdump(interface="ens33", file_prefix="tcpdump_output"):
+    pcap_file = f"{file_prefix}.pcap"
+    process = subprocess.Popen(
+        ["sudo", "tcpdump", "-i", interface, "-w", pcap_file],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    return process, pcap_file
+
+# Function to stop tcpdump
+def stop_tcpdump(process):
+    process.terminate()
+    process.wait()
+
+# Function to count packets in pcap file
+def count_packets(pcap_file):
     result = subprocess.run(
-        ["netstat", "-i"],
+        ["capinfos", pcap_file],
         capture_output=True,
         text=True
     )
-    match = re.search(rf"{interface}\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)", result.stdout)
+    match = re.search(r"Number of packets\s+:\s+(\d+)", result.stdout)
     if match:
         return int(match.group(1))
     return 0
-
-# Function to check connectivity to devices using Ansible ping module
-def check_connectivity(inventory):
-    result = subprocess.run(
-        ["ansible", "-i", inventory, "all", "-m", "ping"],
-        capture_output=True,
-        text=True
-    )
-    return result.stdout
 
 # Function to run the Ansible playbook
 def run_playbook(ip_range, wildcard_mask, interface, inventory):
     start_time = time.time()
 
-    # Capture packets sent before running the playbook
-    initial_packets_sent = get_packets_sent(interface)
+    # Start tcpdump to capture packets
+    tcpdump_process, pcap_file = start_tcpdump(interface)
 
     # Run the ansible playbook with the given variables and inventory
     result = subprocess.run(
@@ -51,9 +57,9 @@ def run_playbook(ip_range, wildcard_mask, interface, inventory):
         text=True
     )
 
-    # Capture packets sent after running the playbook
-    final_packets_sent = get_packets_sent(interface)
-    packets_sent = final_packets_sent - initial_packets_sent
+    # Stop tcpdump and count packets
+    stop_tcpdump(tcpdump_process)
+    packets_sent = count_packets(pcap_file)
 
     end_time = time.time()
     duration = end_time - start_time
@@ -66,9 +72,13 @@ def main():
     inventory = "hosts.ini"
 
     # Check connectivity
-    connectivity_check = check_connectivity(inventory)
+    connectivity_check = subprocess.run(
+        ["ansible", "-i", inventory, "all", "-m", "ping"],
+        capture_output=True,
+        text=True
+    )
     print("Connectivity check result:")
-    print(connectivity_check)
+    print(connectivity_check.stdout)
 
     results = []
 
