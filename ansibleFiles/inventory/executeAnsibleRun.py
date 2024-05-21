@@ -32,6 +32,8 @@ def count_packets(pcap_file):
         capture_output=True,
         text=True
     )
+    print("capinfos output:")
+    print(result.stdout)
     match = re.search(r"Number of packets\s+:\s+(\d+)", result.stdout)
     if match:
         return int(match.group(1))
@@ -56,6 +58,9 @@ def run_playbook(ip_range, wildcard_mask, interface, inventory):
         capture_output=True,
         text=True
     )
+    print("ansible-playbook output:")
+    print(result.stdout)
+    print(result.stderr)
 
     # Stop tcpdump and count packets
     stop_tcpdump(tcpdump_process)
