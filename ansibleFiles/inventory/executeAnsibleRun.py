@@ -51,7 +51,7 @@ def run_playbook(ip_range, wildcard_mask, interface, inventory):
         [
             "ansible-playbook",
             "-i", inventory,
-            "playbook.yml",
+            "change_config.yml",
             "-e", f"ip_range={ip_range}",
             "-e", f"wildcard_mask={wildcard_mask}"
         ],
