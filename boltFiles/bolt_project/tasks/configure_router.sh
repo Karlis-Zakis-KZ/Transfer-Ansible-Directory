@@ -1,8 +1,8 @@
-# Testing
 #!/bin/sh
-vtysh <<- EOF
+
+ssh karlis@$TARGET_NAME << EOF
 configure terminal
-hostname ${TARGET_NAME}
+hostname $TARGET_NAME
 exit
 write memory
 EOF
