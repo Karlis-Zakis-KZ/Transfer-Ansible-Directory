@@ -54,7 +54,7 @@ def run_playbook(ip_range, wildcard_mask, interface, inventory):
 # Main function to run the playbook 10 times with different configurations
 def main():
     interface = "ens33"
-    inventory = "inventory.ini"
+    inventory = "hosts.ini"
 
     results = []
 
