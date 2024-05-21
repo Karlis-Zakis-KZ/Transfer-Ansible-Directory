@@ -13,6 +13,8 @@
       ios_config:
         lines:
           - ip access-list standard TEST_ACL
-          - permit 192.168.0.0 0.0.255.255
+          - permit 192.168.0.0 0.255.255.255
         match: line
         replace: line
+      # Temporarily disable the condition for testing
+      # when: "'ip access-list standard TEST_ACL' not in running_config.stdout[0] or 'permit 192.168.0.0 0.0.255.255' not in running_config.stdout[0]"
