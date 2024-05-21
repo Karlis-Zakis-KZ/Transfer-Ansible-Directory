@@ -1,3 +1,4 @@
+# bolt_project/plans/change_config.pp
 plan bolt_project::change_config(
   TargetSpec $targets
 ) {
