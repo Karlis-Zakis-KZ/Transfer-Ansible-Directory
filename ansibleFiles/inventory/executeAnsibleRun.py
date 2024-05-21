@@ -23,16 +23,17 @@ def get_packets_sent(interface="ens33"):
     return 0
 
 # Function to run the Ansible playbook
-def run_playbook(ip_range, wildcard_mask, interface):
+def run_playbook(ip_range, wildcard_mask, interface, inventory):
     start_time = time.time()
 
     # Capture packets sent before running the playbook
     initial_packets_sent = get_packets_sent(interface)
 
-    # Run the ansible playbook with the given variables
+    # Run the ansible playbook with the given variables and inventory
     result = subprocess.run(
         [
             "ansible-playbook",
+            "-i", inventory,
             "playbook.yml",
             "-e", f"ip_range={ip_range}",
             "-e", f"wildcard_mask={wildcard_mask}"
@@ -53,12 +54,13 @@ def run_playbook(ip_range, wildcard_mask, interface):
 # Main function to run the playbook 10 times with different configurations
 def main():
     interface = "ens33"
+    inventory = "inventory.ini"
 
     results = []
 
     for i in range(10):
         ip_range, wildcard_mask = generate_ip_range()
-        duration, packets_sent = run_playbook(ip_range, wildcard_mask, interface)
+        duration, packets_sent = run_playbook(ip_range, wildcard_mask, interface, inventory)
         results.append({
             "run": i + 1,
             "ip_range": ip_range,
