@@ -15,17 +15,28 @@ plan bolt_module::change_config(
     out::message("Applying ACL command to ${target}")
 
     # Run the ACL command on the target machine
-    run_command("enable", $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    run_command("configure terminal", $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    $whatResutns = run_command($acl_command, $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    out::message($whatResutns)
-    run_command($acl_command_permit, $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    run_command("end", $target, '_run_as' => 'karlis', 'password' => 'cisco')
+    run_command("enable", $target)
+    run_command("configure terminal", $target)
 
+    $acl_output = run_command($acl_command, $target)
+    if $acl_output['exit_code'] != 0 {
+      fail("Error applying ACL command on ${target}: ${acl_output['stderr']}")
+    }
+    out::message("ACL command output: ${acl_output}")
+
+    $permit_output = run_command($acl_command_permit, $target)
+    if $permit_output['exit_code'] != 0 {
+      fail("Error applying permit command on ${target}: ${permit_output['stderr']}")
+    }
+    out::message("Permit command output: ${permit_output}")
+
+    # Exit configuration mode
+    run_command("end", $target)
+
+    # Verify the ACL
     out::message("Verifying ACL on ${target}")
+    $output = run_command("show access-lists ${acl_name}", $target)
 
-    $output = run_command("show access-lists ${acl_name}", $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    
     if $output['exit_code'] == 0 {
       $stdout = $output['stdout']
       out::message($stdout)
