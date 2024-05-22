@@ -8,6 +8,8 @@ targets:
         user: karlis
         password: cisco
         host-key-check: false
+        options:
+          - '-o StrictHostKeyChecking=no'
   - uri: 192.168.21.12
     name: R2
     config:
@@ -16,6 +18,8 @@ targets:
         user: karlis
         password: cisco
         host-key-check: false
+        options:
+          - '-o StrictHostKeyChecking=no'
   - uri: 192.168.21.13
     name: R3
     config:
@@ -24,6 +28,8 @@ targets:
         user: karlis
         password: cisco
         host-key-check: false
+        options:
+          - '-o StrictHostKeyChecking=no'
   - uri: 192.168.21.14
     name: R4
     config:
@@ -32,3 +38,5 @@ targets:
         user: karlis
         password: cisco
         host-key-check: false
+        options:
+          - '-o StrictHostKeyChecking=no'
