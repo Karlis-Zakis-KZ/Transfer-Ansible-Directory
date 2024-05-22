@@ -21,11 +21,10 @@ plan bolt_module::change_config(
     $output = run_command("sshpass -p 'cisco' ssh -o StrictHostKeyChecking=no karlis@${target.uri} 'show access-lists ${acl_name}'", $target)
     $output['stdout']
   }
-  $acl_verification_str = $acl_verification.join("\n")
-  out::message("ACL Configuration:\n${acl_verification_str}")
 
-  # Return ACL verification results
-  return {
-    'acl_verification' => $acl_verification_str
+  # Output ACL verification results
+  out::message("ACL Configuration:")
+  $acl_verification.each |$verification| {
+    out::message($verification)
   }
 }
