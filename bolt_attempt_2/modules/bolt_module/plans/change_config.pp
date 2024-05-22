@@ -21,6 +21,7 @@ plan bolt_module::change_config(
     out::message("Verifying ACL on ${target}")
 
     $output = run_command("show access-lists ${acl_name}", $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    out::message($output.stringify)
+    $stdout = $output[0].value['stdout']
+    out::message($stdout)
   }
 }
