@@ -5,7 +5,7 @@ plan bolt_module::change_config(
   String $acl_name
 ) {
   $acl_command = "ip access-list extended ${acl_name}"
-  $acl_command_permit = "permit ip ${ip_range} ${wildcard_mask}"
+  $acl_command_permit = "permit ip any ${ip_range} ${wildcard_mask}"
 
   out::message("Target string: ${targets}")
 
