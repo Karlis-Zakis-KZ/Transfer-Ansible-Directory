@@ -20,10 +20,10 @@ plan bolt_module::change_config(
     out::message("Applying ACL command to ${target_uri}")
 
     # Apply the ACL command directly
-    $command = "echo '${acl_command}' | ssh karlis@${target_uri} 'configure terminal'"
+    $command = "echo '${acl_command}' | ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null karlis@${target_uri} 'configure terminal'"
     out::message("Running command: ${command}")
 
-    run_command($command, $target, '_run_as' => 'root')
+    run_command($command, $target, '_run_as' => 'karlis', '_password' => 'cisco')
   }
 
   # Verify the ACL configuration on the routers
@@ -34,7 +34,7 @@ plan bolt_module::change_config(
     # Debug message
     out::message("Verifying ACL on ${target_uri}")
 
-    $output = run_command("ssh karlis@${target_uri} 'show access-lists ${acl_name}'", $target, '_run_as' => 'root')
+    $output = run_command("ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null karlis@${target_uri} 'show access-lists ${acl_name}'", $target, '_run_as' => 'karlis', '_password' => 'cisco')
     $output['stdout']
   }
 
