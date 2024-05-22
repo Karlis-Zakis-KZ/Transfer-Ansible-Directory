@@ -5,7 +5,7 @@ plan bolt_module::change_config(
   String $acl_name
 ) {
   $acl_command = "ip access-list extended ${acl_name}"
-  $acl_command_permit = "permit ip any ${ip_range} ${wildcard_mask}"
+  $acl_command_permit = "permit ip ${ip_range} ${wildcard_mask}"
 
   out::message("Target string: ${targets}")
 
@@ -16,7 +16,8 @@ plan bolt_module::change_config(
 
     # Run the ACL command on the target machine
     run_command("enable", $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    run_command("configure terminal", $target, '_run_as' => 'karlis', 'password' => 'cisco')
+    $whatResutns = run_command("configure terminal", $target, '_run_as' => 'karlis', 'password' => 'cisco')
+    out::message($whatResutns)
     run_command($acl_command, $target, '_run_as' => 'karlis', 'password' => 'cisco')
     run_command($acl_command_permit, $target, '_run_as' => 'karlis', 'password' => 'cisco')
     run_command("end", $target, '_run_as' => 'karlis', 'password' => 'cisco')
@@ -24,7 +25,13 @@ plan bolt_module::change_config(
     out::message("Verifying ACL on ${target}")
 
     $output = run_command("show access-lists ${acl_name}", $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    $stdout = $output[0].value['stdout']
-    out::message($stdout)
+    
+    if $output['exit_code'] == 0 {
+      $stdout = $output['stdout']
+      out::message($stdout)
+    } else {
+      $stderr = $output['stderr']
+      fail("Error verifying ACL on ${target}: ${stderr}")
+    }
   }
 }
