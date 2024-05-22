@@ -16,9 +16,9 @@ plan bolt_module::change_config(
 
     # Run the ACL command on the target machine
     run_command("enable", $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    $whatResutns = run_command("configure terminal", $target, '_run_as' => 'karlis', 'password' => 'cisco')
+    run_command("configure terminal", $target, '_run_as' => 'karlis', 'password' => 'cisco')
+    $whatResutns = run_command($acl_command, $target, '_run_as' => 'karlis', 'password' => 'cisco')
     out::message($whatResutns)
-    run_command($acl_command, $target, '_run_as' => 'karlis', 'password' => 'cisco')
     run_command($acl_command_permit, $target, '_run_as' => 'karlis', 'password' => 'cisco')
     run_command("end", $target, '_run_as' => 'karlis', 'password' => 'cisco')
 
