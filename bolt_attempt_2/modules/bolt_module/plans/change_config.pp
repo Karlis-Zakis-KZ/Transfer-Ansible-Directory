@@ -5,32 +5,36 @@ plan bolt_module::change_config(
   String $wildcard_mask,
   String $acl_name
 ) {
-  # Debug: Print target details
-  $targets.each |$target| {
-    out::message("Target details: ${target}")
-  }
-
   # Prepare the ACL configuration command
   $acl_command = "access-list ${acl_name} permit ip ${ip_range} ${wildcard_mask}"
 
+  # Convert TargetSpec to a list of targets
+  $target_list = get_targets($targets)
+
   # Apply the ACL configuration on the routers
-  $targets.each |$target| {
+  $target_list.each |$target| {
+    # Get the target's URI
+    $target_uri = $target.host
+
     # Debug message
-    out::message("Applying ACL command to ${target.uri}")
+    out::message("Applying ACL command to ${target_uri}")
 
     # Apply the ACL command directly
-    $command = "echo '${acl_command}' | ssh karlis@${target.uri} 'configure terminal'"
+    $command = "echo '${acl_command}' | ssh karlis@${target_uri} 'configure terminal'"
     out::message("Running command: ${command}")
 
     run_command($command, $target, '_run_as' => 'root')
   }
 
   # Verify the ACL configuration on the routers
-  $acl_verification = $targets.map |$target| {
-    # Debug message
-    out::message("Verifying ACL on ${target.uri}")
+  $acl_verification = $target_list.map |$target| {
+    # Get the target's URI
+    $target_uri = $target.host
 
-    $output = run_command("ssh karlis@${target.uri} 'show access-lists ${acl_name}'", $target, '_run_as' => 'root')
+    # Debug message
+    out::message("Verifying ACL on ${target_uri}")
+
+    $output = run_command("ssh karlis@${target_uri} 'show access-lists ${acl_name}'", $target, '_run_as' => 'root')
     $output['stdout']
   }
 
