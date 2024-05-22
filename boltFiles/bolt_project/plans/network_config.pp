@@ -1,5 +1,5 @@
 # plans/network_config.pp
-plan bolt_project::network_config(
+plan bolt_project::network_config (
   TargetSpec $targets,
   String $interface,
   Integer $runs = 10,
@@ -26,8 +26,10 @@ plan bolt_project::network_config(
   $results = []
 
   # Repeat the task for a number of runs
-  for $i in Range[1, $runs] {
-    $ip_range, $wildcard_mask = generate_ip_range()
+  for $i in range(1, $runs) {
+    $ip_range_wildcard = generate_ip_range()
+    $ip_range = $ip_range_wildcard[0]
+    $wildcard_mask = $ip_range_wildcard[1]
     $acl_name = generate_acl_name()
 
     # Start tcpdump
@@ -35,7 +37,7 @@ plan bolt_project::network_config(
     run_task('puppet_agent::install', $targets) # Ensure Puppet agent is installed
 
     # Apply configuration to routers
-    $apply_config = apply($targets) {
+    $apply_config = apply($targets, 'network_device') {
       network_device::interface { 'acl_config':
         ensure         => 'present',
         acl_name       => $acl_name,
