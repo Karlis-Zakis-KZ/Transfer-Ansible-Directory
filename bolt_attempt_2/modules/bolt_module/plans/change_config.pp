@@ -25,13 +25,14 @@ plan bolt_module::change_config(
 
   # Verify the ACL configuration on the routers
   $acl_verification = $targets.map |$target| {
-    run_command("sshpass -p 'cisco' ssh -o StrictHostKeyChecking=no karlis@${target.uri} 'show access-lists ${acl_name}'", $target)
+    $output = run_command("sshpass -p 'cisco' ssh -o StrictHostKeyChecking=no karlis@${target.uri} 'show access-lists ${acl_name}'", $target)
+    $output['stdout']
   }
-  out::message("ACL Configuration:\n${acl_verification}")
+  out::message("ACL Configuration:\n${acl_verification.join('\n')}")
 
   # Return packet count and ACL verification results
   return {
     'packet_count'  => $packet_count,
-    'acl_verification' => $acl_verification
+    'acl_verification' => $acl_verification.join('\n')
   }
 }
