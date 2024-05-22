@@ -1,4 +1,3 @@
-# plans/network_config.pp
 plan bolt_project::network_config(
   TargetSpec $targets,
   String $interface,

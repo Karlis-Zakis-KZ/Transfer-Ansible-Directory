@@ -1,0 +1,17 @@
+{
+    "description": "Configure network interface",
+    "parameters": {
+      "interface": {
+        "description": "The network interface to configure",
+        "type": "String"
+      },
+      "runs": {
+        "description": "The number of times to run the configuration",
+        "type": "Integer"
+      }
+    },
+    "implementations": [
+      {"name": "network_config_task.sh", "requirements": ["shell"]}
+    ]
+  }
+  

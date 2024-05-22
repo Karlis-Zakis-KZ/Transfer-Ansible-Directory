@@ -3,10 +3,13 @@
 interface=$PT_interface
 runs=$PT_runs
 
-echo "Configuring interface $interface with $runs runs."
+echo "interface: $interface"
+echo "runs: $runs"
 
 for ((i=1; i<=runs; i++))
 do
-  echo "Run $i: Configuring $interface..."
-  # Add your configuration commands here
+  # Use network device specific command execution here
+  echo "Run $i: Configuring interface $interface..."
+  # Example command to configure an interface
+  echo "interface $interface" > /dev/null
 done
