@@ -5,6 +5,11 @@ plan bolt_module::change_config(
   String $wildcard_mask,
   String $acl_name
 ) {
+  # Debug: Print target details
+  $targets.each |$target| {
+    out::message("Target details: ${target}")
+  }
+
   # Prepare the ACL configuration command
   $acl_command = "access-list ${acl_name} permit ip ${ip_range} ${wildcard_mask}"
 
