@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x  # Enable debugging output
-
 # Assign parameters to variables
 interface=$PT_interface
 runs=$PT_runs
@@ -18,9 +16,7 @@ do
   echo "Run $i: Configuring interface $interface"
   # Example: Send a command to configure the interface
   # Note: Actual Cisco configuration commands should be used here
-  # This is a placeholder echo to simulate the command
+  # This is a placeholder command to simulate the interaction
   echo "interface $interface"
   echo "description 'Configured by Puppet Bolt Run $i'"
 done
-
-set +x  # Disable debugging output
