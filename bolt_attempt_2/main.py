@@ -17,6 +17,8 @@ def start_tcpdump(interface="ens33", file_prefix="tcpdump_output"):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
+    if process.poll() is not None:
+        print(f"Failed to start tcpdump: {process.stderr.read().decode()}")
     return process, pcap_file
 
 def stop_tcpdump(process):
