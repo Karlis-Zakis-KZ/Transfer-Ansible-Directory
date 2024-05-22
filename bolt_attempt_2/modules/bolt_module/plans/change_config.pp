@@ -6,21 +6,25 @@ plan bolt_module::change_config(
 ) {
   $acl_command = "access-list ${acl_name} permit ip ${ip_range} ${wildcard_mask}"
 
-  out::message("Target string: ${targets}")
-
-  $target_array = $targets.split(',')
-
-  $target_array.each |$target| {
-    out::message("Applying ACL command to ${target}")
+  $targets.each |$target| {
+    out::message("Applying ACL command to ${target.uri}")
 
     # Run the ACL command on the target machine
-    run_command("configure terminal", $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    run_command($acl_command, $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    run_command("exit", $target, '_run_as' => 'karlis', 'password' => 'cisco')
+    $commands = [
+      "configure terminal",
+      $acl_command,
+      "end",
+      "write memory"
+    ]
 
-    out::message("Verifying ACL on ${target}")
+    $commands.each |$cmd| {
+      $output = run_command($cmd, $target)
+      out::message("Output for command '${cmd}': ${$output['stdout']}")
+    }
 
-    $output = run_command("show access-lists ${acl_name}", $target, '_run_as' => 'karlis', 'password' => 'cisco')
+    out::message("Verifying ACL on ${target.uri}")
+
+    $output = run_command("show access-lists ${acl_name}", $target)
     out::message($output['stdout'])
   }
 }
