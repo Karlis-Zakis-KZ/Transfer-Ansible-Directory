@@ -3,72 +3,32 @@ targets:
   - uri: 192.168.21.11
     name: 192.168.21.11
     config:
-      transport: remote
-      remote:
-        host: 192.168.21.11
+      transport: ssh
+      ssh:
         user: karlis
         password: cisco
-        port: 22
-        ssh:
-          host-key-check: false
-        login-shell: false
-        run-as-command: ['enable', 'configure terminal']
-      interpreters:
-        sh: /bin/sh
-        ios: /usr/bin/python3
-    facts:
-      network_os: ios
+        host-key-check: false
   - uri: 192.168.21.12
     name: 192.168.21.12
     config:
-      transport: remote
-      remote:
-        host: 192.168.21.12
+      transport: ssh
+      ssh:
         user: karlis
         password: cisco
-        port: 22
-        ssh:
-          host-key-check: false
-        login-shell: false
-        run-as-command: ['enable', 'configure terminal']
-      interpreters:
-        sh: /bin/sh
-        ios: /usr/bin/python3
-    facts:
-      network_os: ios
+        host-key-check: false
   - uri: 192.168.21.13
     name: 192.168.21.13
     config:
-      transport: remote
-      remote:
-        host: 192.168.21.13
+      transport: ssh
+      ssh:
         user: karlis
         password: cisco
-        port: 22
-        ssh:
-          host-key-check: false
-        login-shell: false
-        run-as-command: ['enable', 'configure terminal']
-      interpreters:
-        sh: /bin/sh
-        ios: /usr/bin/python3
-    facts:
-      network_os: ios
+        host-key-check: false
   - uri: 192.168.21.14
     name: 192.168.21.14
     config:
-      transport: remote
-      remote:
-        host: 192.168.21.14
+      transport: ssh
+      ssh:
         user: karlis
         password: cisco
-        port: 22
-        ssh:
-          host-key-check: false
-        login-shell: false
-        run-as-command: ['enable', 'configure terminal']
-      interpreters:
-        sh: /bin/sh
-        ios: /usr/bin/python3
-    facts:
-      network_os: ios
+        host-key-check: false
