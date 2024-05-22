@@ -8,16 +8,13 @@ plan bolt_module::change_config(
   # Start tcpdump
   $tcpdump_result = run_command('sudo tcpdump -i ens33 -w /tmp/tcpdump_output.pcap', $targets, '_run_as' => 'root')
 
-  # Prepare the ACL configuration commands
-  $acl_commands = @("END")
-    configure terminal
-    access-list ${acl_name} permit ip ${ip_range} ${wildcard_mask}
-    end
-  END
+  # Prepare the ACL configuration command
+  $acl_command = "access-list ${acl_name} permit ip ${ip_range} ${wildcard_mask}"
 
   # Apply the ACL configuration on the routers
   $targets.each |$target| {
-    run_command("sshpass -p 'cisco' ssh -o StrictHostKeyChecking=no karlis@${target.uri} '${acl_commands}'", $target)
+    run_command("echo '${acl_command}' > /tmp/acl_config.txt", $target)
+    run_command("sshpass -p 'cisco' ssh -o StrictHostKeyChecking=no karlis@${target.uri} 'configure terminal < /tmp/acl_config.txt'", $target)
   }
 
   # Stop tcpdump
@@ -27,7 +24,9 @@ plan bolt_module::change_config(
   $packet_count = run_command('capinfos /tmp/tcpdump_output.pcap | grep "Number of packets"', $targets)
 
   # Verify the ACL configuration on the routers
-  $acl_verification = run_command("sshpass -p 'cisco' ssh -o StrictHostKeyChecking=no karlis@${targets[0].uri} 'show access-lists ${acl_name}'", $targets)
+  $acl_verification = $targets.map |$target| {
+    run_command("sshpass -p 'cisco' ssh -o StrictHostKeyChecking=no karlis@${target.uri} 'show access-lists ${acl_name}'", $target)
+  }
   out::message("ACL Configuration:\n${acl_verification}")
 
   # Return packet count and ACL verification results
