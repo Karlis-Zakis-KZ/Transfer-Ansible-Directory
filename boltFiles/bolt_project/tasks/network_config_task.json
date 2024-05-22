@@ -1,8 +1,8 @@
 {
-    "description": "Configure network interface",
+    "description": "Configure network interface and capture packets using Netmiko",
     "parameters": {
       "interface": {
-        "description": "The network interface to configure",
+        "description": "The network interface to monitor for packet capture",
         "type": "String"
       },
       "runs": {

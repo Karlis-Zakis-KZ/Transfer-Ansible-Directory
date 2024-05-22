@@ -1,22 +1,7 @@
 #!/bin/bash
 
-# Assign parameters to variables
-interface=$PT_interface
-runs=$PT_runs
+# Activate the virtual environment
+source /path/to/your/venv/bin/activate
 
-# Ensure interface and runs are set
-if [[ -z "$interface" || -z "$runs" ]]; then
-  echo "Both interface and runs parameters must be provided."
-  exit 1
-fi
-
-# Loop for the number of runs and configure the interface
-for ((i=1; i<=runs; i++))
-do
-  echo "Run $i: Configuring interface $interface"
-  # Example: Send a command to configure the interface
-  # Note: Actual Cisco configuration commands should be used here
-  # This is a placeholder command to simulate the interaction
-  echo "interface $interface"
-  echo "description 'Configured by Puppet Bolt Run $i'"
-done
+# Run the Python script with the provided parameters
+python ~/Transfer-Ansible-Directory/boltFiles/bolt_project/tasks/network_config_with_capture.py "$PT_interface" "$PT_runs" "~/Transfer-Ansible-Directory/boltFiles/bolt_project/hosts.txt"
