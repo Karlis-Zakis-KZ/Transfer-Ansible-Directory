@@ -10,7 +10,9 @@ plan bolt_module::change_config(
 
   # Apply the ACL configuration on the routers
   $targets.each |$target| {
+    # Write the ACL command to a temporary file on the target
     run_command("echo '${acl_command}' > /tmp/acl_config.txt", $target)
+    # Apply the configuration using the temporary file
     run_command("sshpass -p 'cisco' ssh -o StrictHostKeyChecking=no karlis@${target.uri} 'configure terminal < /tmp/acl_config.txt'", $target)
   }
 
