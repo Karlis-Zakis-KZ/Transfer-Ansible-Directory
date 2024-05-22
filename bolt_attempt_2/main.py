@@ -10,8 +10,31 @@ def generate_ip_range():
     acl_name = f"TEST_ACL_{random.randint(1, 1000)}"
     return ip_base, wildcard_mask, acl_name
 
+def start_tcpdump(interface="ens33", file_prefix="tcpdump_output"):
+    pcap_file = f"{file_prefix}.pcap"
+    process = subprocess.Popen(
+        ["sudo", "tcpdump", "-i", interface, "-w", pcap_file],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    return process, pcap_file
+
+def stop_tcpdump(process):
+    process.terminate()
+    process.wait()
+
+def count_packets(pcap_file):
+    result = subprocess.run(
+        ["capinfos", pcap_file],
+        capture_output=True,
+        text=True
+    )
+    match = re.search(r"Number of packets\s+:\s+(\d+)", result.stdout)
+    if match:
+        return int(match.group(1))
+    return 0
+
 def run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory):
-    start_time = time.time()
     result = subprocess.run(
         [
             "bolt", "plan", "run", "bolt_module::change_config",
@@ -27,21 +50,15 @@ def run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory):
     print(result.stdout)
     print(result.stderr)
     
-    packet_count = 0
     acl_verification = ""
-    match = re.search(r"Number of packets\s+:\s+(\d+)", result.stdout)
-    if match:
-        packet_count = int(match.group(1))
-    
     acl_match = re.search(r"ACL Configuration:\n(.*)", result.stdout, re.DOTALL)
     if acl_match:
         acl_verification = acl_match.group(1)
     
-    end_time = time.time()
-    duration = end_time - start_time
-    return duration, packet_count, acl_verification
+    return acl_verification
 
 def main():
+    interface = "ens33"
     inventory = "inventory.yaml"
     connectivity_check = subprocess.run(
         ["bolt", "command", "run", "echo 'Connectivity check'", "--targets", "all", "--inventoryfile", inventory],
@@ -53,7 +70,22 @@ def main():
     results = []
     for i in range(10):
         ip_range, wildcard_mask, acl_name = generate_ip_range()
-        duration, packets_sent, acl_verification = run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory)
+        
+        # Start tcpdump
+        tcpdump_process, pcap_file = start_tcpdump(interface)
+        
+        # Run the Bolt plan
+        start_time = time.time()
+        acl_verification = run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory)
+        end_time = time.time()
+        
+        # Stop tcpdump
+        stop_tcpdump(tcpdump_process)
+        
+        # Count packets
+        packets_sent = count_packets(pcap_file)
+        
+        duration = end_time - start_time
         results.append({
             "run": i + 1,
             "ip_range": ip_range,
@@ -64,6 +96,7 @@ def main():
             "acl_verification": acl_verification
         })
         print(f"Run {i+1}: Duration={duration:.2f}s, Network Packets Sent={packets_sent}, ACL Verification:\n{acl_verification}")
+    
     with open("results.json", "w") as f:
         json.dump(results, f, indent=4)
 
