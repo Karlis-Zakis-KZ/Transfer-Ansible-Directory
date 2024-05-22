@@ -28,13 +28,18 @@ def run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory):
     print(result.stderr)
     
     packet_count = 0
+    acl_verification = ""
     match = re.search(r"Number of packets\s+:\s+(\d+)", result.stdout)
     if match:
         packet_count = int(match.group(1))
     
+    acl_match = re.search(r"ACL Configuration:\n(.*)", result.stdout, re.DOTALL)
+    if acl_match:
+        acl_verification = acl_match.group(1)
+    
     end_time = time.time()
     duration = end_time - start_time
-    return duration, packet_count
+    return duration, packet_count, acl_verification
 
 def main():
     inventory = "inventory.yaml"
@@ -48,16 +53,17 @@ def main():
     results = []
     for i in range(10):
         ip_range, wildcard_mask, acl_name = generate_ip_range()
-        duration, packets_sent = run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory)
+        duration, packets_sent, acl_verification = run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory)
         results.append({
             "run": i + 1,
             "ip_range": ip_range,
             "wildcard_mask": wildcard_mask,
             "acl_name": acl_name,
             "duration": duration,
-            "network_packets_sent": packets_sent
+            "network_packets_sent": packets_sent,
+            "acl_verification": acl_verification
         })
-        print(f"Run {i+1}: Duration={duration:.2f}s, Network Packets Sent={packets_sent}")
+        print(f"Run {i+1}: Duration={duration:.2f}s, Network Packets Sent={packets_sent}, ACL Verification:\n{acl_verification}")
     with open("results.json", "w") as f:
         json.dump(results, f, indent=4)
 
