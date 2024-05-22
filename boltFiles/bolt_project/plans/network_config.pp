@@ -6,14 +6,14 @@ plan bolt_project::network_config (
 ) {
 
   # Function to generate random IP range
-  function generate_ip_range() {
+  function bolt_project::generate_ip_range() {
     $ip_base = "192.168.${Integer.new(rand(256))}.0"
     $wildcard_mask = "0.0.255.255"
     return [$ip_base, $wildcard_mask]
   }
 
   # Function to generate random ACL name
-  function generate_acl_name() {
+  function bolt_project::generate_acl_name() {
     $acl_name = "TEST_ACL_${Integer.new(rand(1000))}"
     return $acl_name
   }
@@ -27,18 +27,18 @@ plan bolt_project::network_config (
 
   # Repeat the task for a number of runs
   for $i in range(1, $runs) {
-    $ip_range_wildcard = generate_ip_range()
+    $ip_range_wildcard = bolt_project::generate_ip_range()
     $ip_range = $ip_range_wildcard[0]
     $wildcard_mask = $ip_range_wildcard[1]
-    $acl_name = generate_acl_name()
+    $acl_name = bolt_project::generate_acl_name()
 
     # Start tcpdump
     $start_tcpdump = run_command("sudo tcpdump -i ${interface} -w tcpdump_output_${i}.pcap", $targets, { '_run_as' => 'root', '_tty' => true })
     run_task('puppet_agent::install', $targets) # Ensure Puppet agent is installed
 
     # Apply configuration to routers
-    $apply_config = apply($targets, 'network_device') {
-      network_device::interface { 'acl_config':
+    apply($targets) {
+      network_device::interface { "acl_config_${i}":
         ensure         => 'present',
         acl_name       => $acl_name,
         ip_range       => $ip_range,
