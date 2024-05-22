@@ -8,11 +8,13 @@ plan bolt_module::change_config(
   # Prepare the ACL configuration command
   $acl_command = "access-list ${acl_name} permit ip ${ip_range} ${wildcard_mask}"
 
+  # Get target details
+  $all_targets = get_targets($targets)
+
   # Apply the ACL configuration on the routers
-  $targets.each |$target| {
-    # Extract target details
-    $target_data = $target.to_data
-    $target_uri = $target_data['uri']
+  $all_targets.each |$target| {
+    # Extract target uri
+    $target_uri = $target['uri']
 
     # Debug message
     out::message("Applying ACL command to ${target_uri}")
@@ -25,10 +27,9 @@ plan bolt_module::change_config(
   }
 
   # Verify the ACL configuration on the routers
-  $acl_verification = $targets.map |$target| {
-    # Extract target details
-    $target_data = $target.to_data
-    $target_uri = $target_data['uri']
+  $acl_verification = $all_targets.map |$target| {
+    # Extract target uri
+    $target_uri = $target['uri']
 
     # Debug message
     out::message("Verifying ACL on ${target_uri}")
