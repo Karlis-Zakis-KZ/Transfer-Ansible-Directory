@@ -11,7 +11,7 @@ plan bolt_module::change_config(
   # Apply the ACL configuration on the routers
   $targets.each |$target| {
     # Apply the ACL command directly
-    run_command("echo '${acl_command}' | ssh karlis@${target_hostname} 'configure terminal'", $target, '_run_as' => 'root')
+    run_command("echo '${acl_command}' | ssh karlis@${target.name} 'configure terminal'", $target, '_run_as' => 'root')
   }
 
   # Verify the ACL configuration on the routers
