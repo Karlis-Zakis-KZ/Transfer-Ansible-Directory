@@ -75,29 +75,27 @@ def main():
         
         # Start tcpdump
         tcpdump_process, pcap_file = start_tcpdump(interface)
-        
+        time.sleep(1)  # Add a short delay
+
         # Run the Bolt plan
-        start_time = time.time()
         acl_verification = run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory)
-        end_time = time.time()
-        
+
         # Stop tcpdump
         stop_tcpdump(tcpdump_process)
-        
+
         # Count packets
         packets_sent = count_packets(pcap_file)
-        
-        duration = end_time - start_time
+
+        # Append results
         results.append({
             "run": i + 1,
             "ip_range": ip_range,
             "wildcard_mask": wildcard_mask,
             "acl_name": acl_name,
-            "duration": duration,
-            "network_packets_sent": packets_sent,
-            "acl_verification": acl_verification
+            "acl_verification": acl_verification,
+            "network_packets_sent": packets_sent
         })
-        print(f"Run {i+1}: Duration={duration:.2f}s, Network Packets Sent={packets_sent}, ACL Verification:\n{acl_verification}")
+        print(f"Run {i+1}: ACL Verification={acl_verification}, Network Packets Sent={packets_sent}")
     
     with open("results.json", "w") as f:
         json.dump(results, f, indent=4)
