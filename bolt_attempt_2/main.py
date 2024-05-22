@@ -68,7 +68,7 @@ def main():
     print("Connectivity check result:")
     print(connectivity_check.stdout)
     results = []
-    for i in range(10):
+    for i in range 10):
         ip_range, wildcard_mask, acl_name = generate_ip_range()
         
         # Start tcpdump
