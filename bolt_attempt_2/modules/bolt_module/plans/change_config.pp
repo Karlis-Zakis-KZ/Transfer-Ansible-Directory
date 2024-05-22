@@ -1,4 +1,5 @@
-plan bolt_attempt_2::change_config(
+# modules/bolt_module/plans/change_config.pp
+plan bolt_module::change_config(
   TargetSpec $targets,
   String $ip_range,
   String $wildcard_mask,
