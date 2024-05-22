@@ -11,21 +11,20 @@ plan bolt_module::change_config(
   # Apply the ACL configuration on the routers
   $targets.each |$target| {
     # Apply the ACL command directly
-    run_command("ssh karlis@${target.uri} 'echo \"${acl_command}\" | configure terminal'", $target, '_run_as' => 'root')
+    run_command("echo '${acl_command}' | ssh karlis@${target.host} 'configure terminal'", $target, '_run_as' => 'root')
   }
 
   # Verify the ACL configuration on the routers
   $acl_verification = $targets.map |$target| {
-    $output = run_command("ssh karlis@${target.uri} 'show access-lists ${acl_name}'", $target, '_run_as' => 'root')
+    $output = run_command("ssh karlis@${target.host} 'show access-lists ${acl_name}'", $target, '_run_as' => 'root')
     $output['stdout']
   }
 
   $acl_verification_str = $acl_verification.join("\n")
   out::message("ACL Configuration:\n${acl_verification_str}")
 
-  # Output ACL verification results
-  out::message("ACL Configuration:")
-  $acl_verification.each |$verification| {
-    out::message($verification)
+  # Return ACL verification results
+  return {
+    'acl_verification' => $acl_verification_str
   }
 }
