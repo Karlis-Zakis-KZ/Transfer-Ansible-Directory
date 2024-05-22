@@ -4,7 +4,8 @@ plan bolt_module::change_config(
   String $wildcard_mask,
   String $acl_name
 ) {
-  $acl_command = "access-list ${acl_name} permit ip ${ip_range} ${wildcard_mask}"
+  $acl_command = "ip access-list extended ${acl_name}"
+  $acl_command_permit = "15 permit ip ${ip_range} ${wildcard_mask}"
 
   out::message("Target string: ${targets}")
 
@@ -16,6 +17,7 @@ plan bolt_module::change_config(
     # Run the ACL command on the target machine
     run_command("configure terminal", $target, '_run_as' => 'karlis', 'password' => 'cisco')
     run_command($acl_command, $target, '_run_as' => 'karlis', 'password' => 'cisco')
+    run_command($acl_command_permit, $target, '_run_as' => 'karlis', 'password' => 'cisco')
     run_command("exit", $target, '_run_as' => 'karlis', 'password' => 'cisco')
 
     out::message("Verifying ACL on ${target}")

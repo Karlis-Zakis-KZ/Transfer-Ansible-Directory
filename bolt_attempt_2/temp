@@ -1,1 +1,79 @@
-2
+osboxes@osboxes:~/Transfer-Ansible-Directory/bolt_attempt_2$ bolt plan run bolt_module::change_config ip_range=192.168.39.0 wildcard_mask=0.0.255.255 acl_name=TEST_ACL_451 --targets 192.168.21.11 --inventoryfile inventory.yaml --log-level trace
+Loaded project from '/home/osboxes/Transfer-Ansible-Directory/bolt_attempt_2'
+Analytics opt-out is set, analytics will be disabled
+Started with 100 max thread(s)
+Loading modules from /opt/puppetlabs/bolt/lib/ruby/gems/2.7.0/gems/bolt-3.29.0/bolt-modules:/home/osboxes/Transfer-Ansible-Directory/bolt_attempt_2/modules:/home/osboxes/Transfer-Ansible-Directory/bolt_attempt_2/.modules:/opt/puppetlabs/bolt/lib/ruby/gems/2.7.0/gems/bolt-3.29.0/modules
+Loaded inventory from /home/osboxes/Transfer-Ansible-Directory/bolt_attempt_2/inventory.yaml
+Loaded inventory from /home/osboxes/Transfer-Ansible-Directory/bolt_attempt_2/inventory.yaml
+Skipping submission of 'plan_run' screenview because analytics is disabled
+Created future bolt_module::change_config
+Checking future 'bolt_module::change_config'
+Resuming future 'bolt_module::change_config'
+Starting: plan bolt_module::change_config
+Starting: plan bolt_module::change_config
+Skipping submission of 'Plan call_function' event because analytics is disabled
+Target string: 192.168.21.11
+Target string: 192.168.21.11
+Skipping submission of 'Plan call_function' event because analytics is disabled
+Applying ACL command to 192.168.21.11
+Applying ACL command to 192.168.21.11
+Skipping submission of 'Plan call_function' event because analytics is disabled
+Starting: command 'configure terminal' on 192.168.21.11
+Starting: command 'configure terminal' on 192.168.21.11
+Skipping submission of 'Transport initialize' event because analytics is disabled
+Running command 'configure terminal' on ["192.168.21.11"]
+Running command 'configure terminal' on 192.168.21.11
+Initializing ssh connection to 192.168.21.11
+Opened session
+Executing `configure terminal`
+Command `configure terminal` returned successfully
+{"target":"192.168.21.11","action":"command","object":"configure terminal","status":"success","value":{"stdout":"\r\nEnter configuration commands, one per line.  End with CNTL/Z.","stderr":"","merged_output":"\r\nEnter configuration commands, one per line.  End with CNTL/Z.","exit_code":0}}
+Skipping submission of 'Plan call_function' event because analytics is disabled
+Finished: command 'configure terminal' with 0 failures in 0.47 sec
+Finished: command 'configure terminal' with 0 failures in 0.47 sec
+Running command 'access-list TEST_ACL_451 permit ip 192.168.39.0 0.0.255.255' on ["192.168.21.11"]
+Starting: command 'access-list TEST_ACL_451 permit ip 192.168.39.0 0.0.255.255' on 192.168.21.11
+Starting: command 'access-list TEST_ACL_451 permit ip 192.168.39.0 0.0.255.255' on 192.168.21.11
+Running command 'access-list TEST_ACL_451 permit ip 192.168.39.0 0.0.255.255' on 192.168.21.11
+Initializing ssh connection to 192.168.21.11
+Opened session
+Executing `access-list TEST_ACL_451 permit ip 192.168.39.0 0.0.255.255`
+Command `access-list TEST_ACL_451 permit ip 192.168.39.0 0.0.255.255` returned successfully
+{"target":"192.168.21.11","action":"command","object":"access-list TEST_ACL_451 permit ip 192.168.39.0 0.0.255.255","status":"success","value":{"stdout":"\r\nLine has invalid autocommand \"access-list TEST_ACL_451 permit ip 192.168.39.0 0.0.255.255\"","stderr":"","merged_output":"\r\nLine has invalid autocommand \"access-list TEST_ACL_451 permit ip 192.168.39.0 0.0.255.255\"","exit_code":0}}
+Skipping submission of 'Plan call_function' event because analytics is disabled
+Finished: command 'access-list TEST_ACL_451 permit ip 192.168.39.0 0.0.255.255' with 0 failures in 0.52 sec
+Finished: command 'access-list TEST_ACL_451 permit ip 192.168.39.0 0.0.255.255' with 0 failures in 0.52 sec
+Running command 'exit' on ["192.168.21.11"]
+Starting: command 'exit' on 192.168.21.11
+Starting: command 'exit' on 192.168.21.11
+Running command 'exit' on 192.168.21.11
+Initializing ssh connection to 192.168.21.11
+Opened session
+Executing `exit`
+Command `exit` returned successfully
+{"target":"192.168.21.11","action":"command","object":"exit","status":"success","value":{"stdout":"","stderr":"","merged_output":"","exit_code":0}}
+Skipping submission of 'Plan call_function' event because analytics is disabled
+Finished: command 'exit' with 0 failures in 0.51 sec
+Finished: command 'exit' with 0 failures in 0.51 sec
+Skipping submission of 'Plan call_function' event because analytics is disabled
+Verifying ACL on 192.168.21.11
+Verifying ACL on 192.168.21.11
+Starting: command 'show access-lists TEST_ACL_451' on 192.168.21.11
+Running command 'show access-lists TEST_ACL_451' on ["192.168.21.11"]
+Starting: command 'show access-lists TEST_ACL_451' on 192.168.21.11
+Running command 'show access-lists TEST_ACL_451' on 192.168.21.11
+Initializing ssh connection to 192.168.21.11
+Opened session
+Executing `show access-lists TEST_ACL_451`
+Command `show access-lists TEST_ACL_451` returned successfully
+{"target":"192.168.21.11","action":"command","object":"show access-lists TEST_ACL_451","status":"success","value":{"stdout":"","stderr":"","merged_output":"","exit_code":0}}
+Skipping submission of 'Plan call_function' event because analytics is disabled
+Finished: command 'show access-lists TEST_ACL_451' with 0 failures in 0.5 sec
+Cleaning up future 'bolt_module::change_config'
+Nothing can be resumed. Rechecking in 0.5 seconds.
+Finished: command 'show access-lists TEST_ACL_451' with 0 failures in 0.5 sec
+
+
+Finished: plan bolt_module::change_config in 2.0 sec
+Finished: plan bolt_module::change_config in 2.0 sec
+Plan completed successfully with no result
