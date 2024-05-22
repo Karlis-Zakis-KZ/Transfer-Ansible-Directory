@@ -14,21 +14,36 @@ plan bolt_module::change_config(
   $target_array.each |$target| {
     out::message("Applying ACL command to ${target}")
 
-    # Define command execution with error handling
-    $commands = [
-      "enable",
-      "configure terminal",
-      $acl_command,
-      $acl_command_permit,
-      "end"
-    ]
+    # Run the enable command on the target machine
+    $enable_output = run_command("enable", $target)
+    if $enable_output['exit_code'] != 0 {
+      fail("Error running enable on ${target}: ${enable_output['stderr']}")
+    }
 
-    $commands.each |$cmd| {
-      $result = run_command($cmd, $target)
-      if $result['exit_code'] != 0 {
-        fail("Error running command '${cmd}' on ${target}: ${result['stderr']}")
-      }
-      out::message("Command '${cmd}' output: ${result['stdout']}")
+    # Run the configure terminal command
+    $configure_output = run_command("configure terminal", $target)
+    if $configure_output['exit_code'] != 0 {
+      fail("Error running configure terminal on ${target}: ${configure_output['stderr']}")
+    }
+
+    # Apply the ACL command
+    $acl_output = run_command($acl_command, $target)
+    if $acl_output['exit_code'] != 0 {
+      fail("Error applying ACL command on ${target}: ${acl_output['stderr']}")
+    }
+    out::message("ACL command output: ${acl_output['stdout']}")
+
+    # Apply the permit command within the ACL context
+    $permit_output = run_command($acl_command_permit, $target)
+    if $permit_output['exit_code'] != 0 {
+      fail("Error applying permit command on ${target}: ${permit_output['stderr']}")
+    }
+    out::message("Permit command output: ${permit_output['stdout']}")
+
+    # Exit configuration mode
+    $end_output = run_command("end", $target)
+    if $end_output['exit_code'] != 0 {
+      fail("Error running end on ${target}: ${end_output['stderr']}")
     }
 
     # Verify the ACL
