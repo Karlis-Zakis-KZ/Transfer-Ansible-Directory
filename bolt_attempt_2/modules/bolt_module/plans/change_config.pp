@@ -11,6 +11,7 @@ plan bolt_module::change_config(
   $target_array = $targets.split(',')
 
   $target_array.each |$target| {
+    out::message("Target acl_name: ${acl_name}")
     out::message("Applying ACL command to ${target}")
 
     # Run the ACL command on the target machine
