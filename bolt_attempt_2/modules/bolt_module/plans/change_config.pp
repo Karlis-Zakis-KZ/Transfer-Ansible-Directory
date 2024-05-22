@@ -24,6 +24,6 @@ plan bolt_module::change_config(
 
   # Return ACL verification results
   return {
-    'acl_verification' => $acl_verification_str
+    'acl_verification': $acl_verification_str
   }
 }
