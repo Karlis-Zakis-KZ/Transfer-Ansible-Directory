@@ -14,7 +14,7 @@ def run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory):
     start_time = time.time()
     result = subprocess.run(
         [
-            "bolt", "plan", "run", "change_config",
+            "bolt", "plan", "run", "bolt_attempt_2::change_config",
             f"ip_range={ip_range}",
             f"wildcard_mask={wildcard_mask}",
             f"acl_name={acl_name}",
