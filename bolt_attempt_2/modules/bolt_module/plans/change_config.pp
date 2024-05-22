@@ -1,4 +1,4 @@
-# modules/bolt_module/plans/change_config.pp --
+# modules/bolt_module/plans/change_config.pp
 plan bolt_module::change_config(
   TargetSpec $targets,
   String $ip_range,
