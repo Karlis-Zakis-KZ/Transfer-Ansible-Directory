@@ -10,11 +10,15 @@ plan bolt_module::change_config(
 
   # Apply the ACL configuration on the routers
   $targets.each |$target| {
+    # Extract target details
+    $target_data = $target.to_data
+    $target_uri = $target_data['uri']
+
     # Debug message
-    out::message("Applying ACL command to ${target.name}")
+    out::message("Applying ACL command to ${target_uri}")
 
     # Apply the ACL command directly
-    $command = "echo '${acl_command}' | ssh karlis@${target.name} 'configure terminal'"
+    $command = "echo '${acl_command}' | ssh karlis@${target_uri} 'configure terminal'"
     out::message("Running command: ${command}")
 
     run_command($command, $target, '_run_as' => 'root')
@@ -22,10 +26,14 @@ plan bolt_module::change_config(
 
   # Verify the ACL configuration on the routers
   $acl_verification = $targets.map |$target| {
-    # Debug message
-    out::message("Verifying ACL on ${target.name}")
+    # Extract target details
+    $target_data = $target.to_data
+    $target_uri = $target_data['uri']
 
-    $output = run_command("ssh karlis@${target.name} 'show access-lists ${acl_name}'", $target, '_run_as' => 'root')
+    # Debug message
+    out::message("Verifying ACL on ${target_uri}")
+
+    $output = run_command("ssh karlis@${target_uri} 'show access-lists ${acl_name}'", $target, '_run_as' => 'root')
     $output['stdout']
   }
 
