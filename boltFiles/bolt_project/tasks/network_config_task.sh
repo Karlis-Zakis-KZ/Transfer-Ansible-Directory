@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x  # Enable debugging output
+
 # Assign parameters to variables
 interface=$PT_interface
 runs=$PT_runs
@@ -20,3 +22,5 @@ do
   echo "interface $interface"
   echo "description 'Configured by Puppet Bolt Run $i'"
 done
+
+set +x  # Disable debugging output
