@@ -9,28 +9,37 @@ plan bolt_module::change_config(
 
   out::message("Target string: ${targets}")
 
-  $target_array = $targets.split(',')
+  # Prepare the targets for applying Puppet resources
+  apply_prep($targets)
 
-  $target_array.each |$target| {
-    out::message("Applying ACL command to ${target}")
+  # Create a Puppet manifest dynamically
+  $manifest = @("END")
+  ios_config { 'Set ACL':
+    command => "${acl_command}
+                ${acl_command_permit}"
+  }
+  | END
 
-    # Run the ACL command on the target machine
-    run_command("enable", $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    run_command("configure terminal", $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    $whatResutns = run_command($acl_command, $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    out::message($whatResutns)
-    run_command($acl_command_permit, $target, '_run_as' => 'karlis', 'password' => 'cisco')
-    run_command("end", $target, '_run_as' => 'karlis', 'password' => 'cisco')
+  # Apply the manifest to the targets
+  apply($targets, _catch_errors => true) |$apply_result| {
+    if $apply_result['status'] == 'failed' {
+      fail("Failed to apply manifest to ${apply_result['target']}: ${apply_result['result']['_error']['msg']}")
+    } else {
+      out::message("Successfully applied manifest to ${apply_result['target']}")
+    }
+  }
 
-    out::message("Verifying ACL on ${target}")
+  out::message("Verifying ACL on targets")
 
-    $output = run_command("show access-lists ${acl_name}", $target, '_run_as' => 'karlis', 'password' => 'cisco')
+  # Verify the ACL configuration
+  $targets.each |$target| {
+    $output = run_task('cisco_ios::command', $target, {'command' => "show access-lists ${acl_name}"})
     
-    if $output['exit_code'] == 0 {
-      $stdout = $output['stdout']
+    if $output['status'] == 'success' {
+      $stdout = $output['result']['stdout']
       out::message($stdout)
     } else {
-      $stderr = $output['stderr']
+      $stderr = $output['result']['stderr']
       fail("Error verifying ACL on ${target}: ${stderr}")
     }
   }
