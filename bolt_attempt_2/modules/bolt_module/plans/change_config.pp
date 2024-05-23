@@ -13,12 +13,12 @@ plan bolt_module::change_config(
   apply_prep($targets)
 
   # Create a Puppet manifest dynamically
-  $manifest = @("END")
+  $manifest = @(END)
   ios_config { 'Set ACL':
     command => "${acl_command}
                 ${acl_command_permit}"
   }
-  | END
+  END
 
   # Apply the manifest to the targets
   apply($targets, _catch_errors => true) |$apply_result| {
