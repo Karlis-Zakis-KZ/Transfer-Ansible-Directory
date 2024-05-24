@@ -2,5 +2,6 @@ name: manage_network
 tasks:
   - manage_network::configure_network
   - manage_network::revert_network
+  - manage_network::test_ssh
 plans:
   - manage_network::manage_network
