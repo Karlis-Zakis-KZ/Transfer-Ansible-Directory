@@ -1,0 +1,6 @@
+name: manage_network
+tasks:
+  - configure_network
+  - revert_network
+plans:
+  - manage_network
