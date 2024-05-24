@@ -1,0 +1,10 @@
+{
+    "description": "Test SSH connectivity",
+    "parameters": {
+      "host": {
+        "type": "String",
+        "description": "The target host to connect to."
+      }
+    }
+  }
+  

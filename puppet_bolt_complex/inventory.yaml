@@ -9,6 +9,7 @@ groups:
             user: karlis
             password: cisco
             host-key-check: false
+            connect-timeout: 10
       - uri: 192.168.21.12
         name: R2
         config:
@@ -17,6 +18,7 @@ groups:
             user: karlis
             password: cisco
             host-key-check: false
+            connect-timeout: 10
       - uri: 192.168.21.13
         name: R3
         config:
@@ -25,6 +27,7 @@ groups:
             user: karlis
             password: cisco
             host-key-check: false
+            connect-timeout: 10
       - uri: 192.168.21.14
         name: R4
         config:
@@ -33,3 +36,4 @@ groups:
             user: karlis
             password: cisco
             host-key-check: false
+            connect-timeout: 10
