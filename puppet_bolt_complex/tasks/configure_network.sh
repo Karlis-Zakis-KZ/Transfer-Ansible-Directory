@@ -32,27 +32,27 @@ for ROUTER in R1 R2 R3 R4; do
   fi
 
   # Configure interfaces
-  /usr/bin/sshpass -p cisco ssh -o StrictHostKeyChecking=no cisco@${ROUTER} "configure terminal
+  /usr/bin/sshpass -p cisco ssh -o StrictHostKeyChecking=no karlis@${IP1} "configure terminal
   interface ${INTERFACE1}
   ip address ${IP1} 255.255.255.0
   no shutdown
   interface ${INTERFACE2}
   ip address ${IP2} 255.255.255.0
   no shutdown
-  exit"
+  exit" || { echo "Failed to configure interfaces on ${ROUTER}"; exit 1; }
 
   # Configure OSPF
-  /usr/bin/sshpass -p cisco ssh -o StrictHostKeyChecking=no cisco@${ROUTER} "configure terminal
+  /usr/bin/sshpass -p cisco ssh -o StrictHostKeyChecking=no karlis@${IP1} "configure terminal
   router ospf 1
   network 192.168.21.0 0.0.0.255 area 0
   network ${IP2}/24 area 0
-  exit"
+  exit" || { echo "Failed to configure OSPF on ${ROUTER}"; exit 1; }
 
   # Apply ACL
-  /usr/bin/sshpass -p cisco ssh -o StrictHostKeyChecking=no cisco@${ROUTER} "configure terminal
+  /usr/bin/sshpass -p cisco ssh -o StrictHostKeyChecking=no karlis@${IP1} "configure terminal
   ip access-list extended ${ACL_NAME}
   permit ip ${IP_RANGE} ${WILDCARD_MASK} any
-  exit"
+  exit" || { echo "Failed to apply ACL on ${ROUTER}"; exit 1; }
 done
 
 echo "Network configuration applied successfully."
