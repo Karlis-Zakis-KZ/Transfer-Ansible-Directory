@@ -1,5 +1,5 @@
 groups:
-  routers:
+  - name: routers
     targets:
       - uri: R1
         config:
