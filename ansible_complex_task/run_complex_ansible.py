@@ -36,14 +36,14 @@ def count_packets(pcap_file):
         return int(match.group(1))
     return 0
 
-def run_playbook(ip_range, wildcard_mask, acl_name, interface, inventory):
+def run_playbook(playbook, ip_range, wildcard_mask, acl_name, interface, inventory):
     start_time = time.time()
-    tcpdump_process, pcap_file = start_tcpdump(interface)
+    tcpdump_process, pcap_file = start_tcpdump(interface, f"{playbook}_{acl_name}")
     result = subprocess.run(
         [
             "ansible-playbook",
             "-i", inventory,
-            "complex_playbook.yml",
+            playbook,
             "-e", f"ip_range={ip_range}",
             "-e", f"wildcard_mask={wildcard_mask}",
             "-e", f"acl_name={acl_name}"
@@ -60,6 +60,8 @@ def run_playbook(ip_range, wildcard_mask, acl_name, interface, inventory):
 def main():
     interface = "ens33"
     inventory = "hosts.ini"
+    configure_playbook = "configure_network.yml"
+    revert_playbook = "revert_network.yml"
     connectivity_check = subprocess.run(
         ["ansible", "-i", inventory, "all", "-m", "ping"],
         capture_output=True,
@@ -70,16 +72,24 @@ def main():
     results = []
     for i in range(10):
         ip_range, wildcard_mask, acl_name = generate_ip_range()
-        duration, packets_sent = run_playbook(ip_range, wildcard_mask, acl_name, interface, inventory)
+        duration_configure, packets_sent_configure = run_playbook(configure_playbook, ip_range, wildcard_mask, acl_name, interface, inventory)
+        duration_revert, packets_sent_revert = run_playbook(revert_playbook, ip_range, wildcard_mask, acl_name, interface, inventory)
         results.append({
             "run": i + 1,
             "ip_range": ip_range,
             "wildcard_mask": wildcard_mask,
             "acl_name": acl_name,
-            "duration": duration,
-            "network_packets_sent": packets_sent
+            "configure": {
+                "duration": duration_configure,
+                "network_packets_sent": packets_sent_configure
+            },
+            "revert": {
+                "duration": duration_revert,
+                "network_packets_sent": packets_sent_revert
+            }
         })
-        print(f"Run {i+1}: Duration={duration:.2f}s, Network Packets Sent={packets_sent}")
+        print(f"Run {i+1}: Configure - Duration={duration_configure:.2f}s, Network Packets Sent={packets_sent_configure}")
+        print(f"Run {i+1}: Revert - Duration={duration_revert:.2f}s, Network Packets Sent={packets_sent_revert}")
     with open("results.json", "w") as f:
         json.dump(results, f, indent=4)
 

@@ -1,0 +1,65 @@
+---
+- name: Network Configuration
+  hosts: routers
+  gather_facts: no
+  tasks:
+    - name: Gather current configuration
+      ios_command:
+        commands:
+          - show running-config
+      register: running_config
+
+    - name: Save running configuration
+      copy:
+        content: "{{ running_config.stdout }}"
+        dest: "backup_running_config_{{ inventory_hostname }}.txt"
+
+    - name: Configure interfaces
+      ios_config:
+        lines:
+          - interface {{ item.interface }}
+          - ip address {{ item.ip }} {{ item.netmask }}
+          - no shutdown
+      with_items:
+        - { interface: "Ethernet1/0", ip: "192.168.21.11", netmask: "255.255.255.0" } # R1 to R5
+        - { interface: "Ethernet1/1", ip: "192.168.22.1", netmask: "255.255.255.0" }  # R1 to R4
+
+        - { interface: "Ethernet1/0", ip: "192.168.21.12", netmask: "255.255.255.0" } # R2 to R5
+        - { interface: "Ethernet1/1", ip: "192.168.23.1", netmask: "255.255.255.0" }  # R2 to R3
+
+        - { interface: "Ethernet1/0", ip: "192.168.21.13", netmask: "255.255.255.0" } # R3 to R5
+        - { interface: "Ethernet1/1", ip: "192.168.24.1", netmask: "255.255.255.0" }  # R3 to R2
+
+        - { interface: "Ethernet1/0", ip: "192.168.21.14", netmask: "255.255.255.0" } # R4 to R5
+        - { interface: "Ethernet1/1", ip: "192.168.25.1", netmask: "255.255.255.0" }  # R4 to R1
+
+    - name: Configure OSPF
+      ios_config:
+        lines:
+          - router ospf 1
+          - network {{ item.network }} {{ item.wildcard }} area 0
+      with_items:
+        - { network: "192.168.21.0", wildcard: "0.0.0.255" }
+        - { network: "192.168.22.0", wildcard: "0.0.0.255" }
+        - { network: "192.168.23.0", wildcard: "0.0.0.255" }
+        - { network: "192.168.24.0", wildcard: "0.0.0.255" }
+        - { network: "192.168.25.0", wildcard: "0.0.0.255" }
+
+    - name: Apply ACLs
+      ios_config:
+        lines:
+          - ip access-list extended {{ acl_name }}
+          - permit ip {{ ip_range }} {{ wildcard_mask }} any
+
+    - name: Verify configurations
+      ios_command:
+        commands:
+          - show running-config
+          - show ip ospf neighbor
+          - show access-lists
+      register: verify_output
+
+    - name: Save verification output
+      copy:
+        content: "{{ verify_output.stdout }}"
+        dest: "verify_output_{{ inventory_hostname }}.txt"

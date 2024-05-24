@@ -1,0 +1,37 @@
+---
+- name: Revert Network Configuration
+  hosts: routers
+  gather_facts: no
+  tasks:
+    - name: Remove ACLs
+      ios_config:
+        lines:
+          - no ip access-list extended {{ acl_name }}
+
+    - name: Restore interfaces
+      ios_config:
+        lines:
+          - default interface {{ item.interface }}
+      with_items:
+        - { interface: "Ethernet1/0" }
+        - { interface: "Ethernet1/1" }
+        - { interface: "Ethernet1/2" }
+        - { interface: "Ethernet1/3" }
+
+    - name: Remove OSPF configuration
+      ios_config:
+        lines:
+          - no router ospf 1
+
+    - name: Verify reversion
+      ios_command:
+        commands:
+          - show running-config
+          - show ip ospf neighbor
+          - show access-lists
+      register: revert_verify_output
+
+    - name: Save reversion verification output
+      copy:
+        content: "{{ revert_verify_output.stdout }}"
+        dest: "revert_verify_output_{{ inventory_hostname }}.txt"
