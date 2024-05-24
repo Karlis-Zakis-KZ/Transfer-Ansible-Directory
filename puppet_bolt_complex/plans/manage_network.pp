@@ -1,7 +1,6 @@
 plan manage_network::manage_network(
   TargetSpec $targets,
   String $interface,
-  String $inventory,
 ) {
   # Generate IP ranges and ACL names
   $ip_range = '192.168.100.0'

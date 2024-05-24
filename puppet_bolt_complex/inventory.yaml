@@ -1,0 +1,31 @@
+groups:
+  routers:
+    targets:
+      - uri: R1
+        config:
+          transport: ssh
+          ssh:
+            user: karlis
+            password: cisco
+            host-key-check: false
+      - uri: R2
+        config:
+          transport: ssh
+          ssh:
+            user: karlis
+            password: cisco
+            host-key-check: false
+      - uri: R3
+        config:
+          transport: ssh
+          ssh:
+            user: karlis
+            password: cisco
+            host-key-check: false
+      - uri: R4
+        config:
+          transport: ssh
+          ssh:
+            user: karlis
+            password: cisco
+            host-key-check: false

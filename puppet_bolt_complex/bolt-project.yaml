@@ -1,4 +1,5 @@
 name: manage_network
+inventory: inventory.yaml
 tasks:
   - manage_network::configure_network
   - manage_network::revert_network
