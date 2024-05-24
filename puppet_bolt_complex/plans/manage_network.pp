@@ -1,4 +1,4 @@
-plan manage_network(
+plan manage_network::manage_network(
   TargetSpec $targets,
   String $interface,
   String $inventory,
@@ -9,7 +9,7 @@ plan manage_network(
   $acl_name = 'TEST_ACL_100'
 
   # Run configure network task
-  run_task('configure_network', $targets, ip_range => $ip_range, wildcard_mask => $wildcard_mask, acl_name => $acl_name)
+  run_task('manage_network::configure_network', $targets, ip_range => $ip_range, wildcard_mask => $wildcard_mask, acl_name => $acl_name)
 
   # Start tcpdump
   $tcpdump_result = run_command("sudo tcpdump -i ${interface} -w /tmp/tcpdump_output.pcap", $targets)
@@ -24,7 +24,7 @@ plan manage_network(
   $capinfos_result = run_command("capinfos /tmp/tcpdump_output.pcap", $targets)
 
   # Run revert network task
-  run_task('revert_network', $targets, acl_name => $acl_name)
+  run_task('manage_network::revert_network', $targets, acl_name => $acl_name)
 
   return {
     configure => $tcpdump_result,

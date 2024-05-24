@@ -1,6 +1,6 @@
 name: manage_network
 tasks:
-  - configure_network
-  - revert_network
+  - manage_network::configure_network
+  - manage_network::revert_network
 plans:
-  - manage_network
+  - manage_network::manage_network
