@@ -1,28 +1,32 @@
 groups:
   - name: routers
     targets:
-      - uri: R1
+      - uri: 192.168.21.11
+        name: R1
         config:
           transport: ssh
           ssh:
             user: karlis
             password: cisco
             host-key-check: false
-      - uri: R2
+      - uri: 192.168.21.12
+        name: R2
         config:
           transport: ssh
           ssh:
             user: karlis
             password: cisco
             host-key-check: false
-      - uri: R3
+      - uri: 192.168.21.13
+        name: R3
         config:
           transport: ssh
           ssh:
             user: karlis
             password: cisco
             host-key-check: false
-      - uri: R4
+      - uri: 192.168.21.14
+        name: R4
         config:
           transport: ssh
           ssh:
