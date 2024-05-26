@@ -1,4 +1,4 @@
-plan apply_config_change (
+plan aplly_config_puppetredo::apply_config_change (
   TargetSpec $targets,
   String $ip_range,
   String $wildcard_mask,
