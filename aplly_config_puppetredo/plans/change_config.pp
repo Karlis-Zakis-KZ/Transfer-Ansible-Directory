@@ -6,7 +6,7 @@ plan aplly_config_puppetredo::change_config(
   String $acl_name
 ) {
   # Gather current running config
-  $running_config = run_task('cisco_ios::command', $targets, { 'command' => 'show running-config' })
+  $running_config = run_task('cisco_ios::command', $targets, { command => 'show running-config' })
   
   # Extract the running config output
   $configs = $running_config.map |$result| {
@@ -20,10 +20,10 @@ plan aplly_config_puppetredo::change_config(
     
     if ! $acl_present {
       run_task('cisco_ios::config', $target, {
-        'config' => "ip access-list standard ${acl_name}\n permit ${ip_range} ${wildcard_mask}"
+        config => "ip access-list standard ${acl_name}\n permit ${ip_range} ${wildcard_mask}"
       })
     }
   }
 
-  return { 'message' => 'ACL configuration applied or verified.' }
+  return { message => 'ACL configuration applied or verified.' }
 }
