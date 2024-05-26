@@ -8,14 +8,12 @@ targets:
         user: karlis
         password: cisco
         host-key-check: false
-  - uri: 192.168.21.12
-    name: R2
-    config:
-      transport: ssh
-      ssh:
-        user: karlis
-        password: cisco
-        host-key-check: false
+        encryption-algorithms:
+          - defaults
+          - aes128-cbc
+          - 3des-cbc
+          - aes192-cbc
+          - aes256-cbc
   - uri: 192.168.21.13
     name: R3
     config:
@@ -24,6 +22,12 @@ targets:
         user: karlis
         password: cisco
         host-key-check: false
+        encryption-algorithms:
+          - defaults
+          - aes128-cbc
+          - 3des-cbc
+          - aes192-cbc
+          - aes256-cbc
   - uri: 192.168.21.14
     name: R4
     config:
@@ -32,3 +36,10 @@ targets:
         user: karlis
         password: cisco
         host-key-check: false
+        encryption-algorithms:
+          - defaults
+          - aes128-cbc
+          - 3des-cbc
+          - aes192-cbc
+          - aes256-cbc
+
