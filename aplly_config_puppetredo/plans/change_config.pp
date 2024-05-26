@@ -9,7 +9,7 @@ plan aplly_config_puppetredo::change_config(
   out::message("Running plan for IP range: ${ip_range}, Wildcard mask: ${wildcard_mask}, ACL name: ${acl_name}")
 
   # Gather current running config
-  $running_config = run_task('aplly_config_puppetredo::command', $targets, { command => 'show running-config' })
+  $running_config = run_task('aplly_config_puppetredo::command', $targets, { 'command' => 'show running-config' })
   out::message("Running config: ${running_config}")
 
   # Extract the running config output
@@ -30,12 +30,12 @@ plan aplly_config_puppetredo::change_config(
     if ! $acl_present {
       out::message("ACL not present, applying config on target: ${target.uri}")
       run_task('aplly_config_puppetredo::config', $target, {
-        config => "ip access-list standard ${acl_name}\n permit ${ip_range} ${wildcard_mask}"
+        'config' => "ip access-list standard ${acl_name}\n permit ${ip_range} ${wildcard_mask}"
       })
     } else {
       out::message("ACL already present on target: ${target.uri}")
     }
   }
 
-  return { message => 'ACL configuration applied or verified.' }
+  return { 'message' => 'ACL configuration applied or verified.' }
 }
