@@ -13,15 +13,16 @@ plan bolt_module::change_config(
   apply_prep($targets)
 
   # Define the configuration manifest
-  $manifest = @("
+  $manifest = @("END"
     ios_config { 'Set ACL':
       command => "${acl_command}
       ${acl_command_permit}"
     }
+  END
   ")
 
   # Apply the manifest to the targets
-  apply($targets, _catch_errors => true) |$apply_result| {
+  $apply_results = apply($targets, _catch_errors => true) |$apply_result| {
     if $apply_result['status'] == 'failed' {
       fail("Failed to apply manifest to ${apply_result['target']}: ${apply_result['result']['_error']['msg']}")
     } else {
@@ -35,11 +36,11 @@ plan bolt_module::change_config(
   $targets.each |$target| {
     $output = run_task('cisco_ios::command', $target, {'command' => "show access-lists ${acl_name}"})
     
-    if $output['status'] == 'success' {
-      $stdout = $output['result']['stdout']
+    if $output.ok {
+      $stdout = $output.result['stdout']
       out::message($stdout)
     } else {
-      $stderr = $output['result']['stderr']
+      $stderr = $output.result['stderr']
       fail("Error verifying ACL on ${target}: ${stderr}")
     }
   }
