@@ -4,37 +4,40 @@ plan bolt_module::change_config(
   String $wildcard_mask,
   String $acl_name
 ) {
+  # Define the ACL commands
   $acl_command = "ip access-list extended ${acl_name}"
   $acl_command_permit = "permit ip any ${ip_range} ${wildcard_mask}"
 
   out::message("Target string: ${targets}")
 
+  # Convert the TargetSpec to an array of Target objects
+  $target_objects = get_targets($targets)
+
+  # Print the target objects for debugging
+  out::message("Target objects: ${target_objects}")
+
   # Prepare the targets for applying Puppet resources
   apply_prep($targets)
 
-  # Define the configuration manifest
-  $manifest = @("END")
-    ios_config { 'Set ACL':
-      command => "${acl_command}
-      ${acl_command_permit}"
-    }
-END
+  # Define the commands to apply the ACL
+  $commands = [
+    $acl_command,
+    $acl_command_permit,
+  ]
 
-  # Apply the manifest to the targets
-  $apply_results = apply($targets, _catch_errors => true)
+  # Apply the ACL commands to the targets
+  $target_objects.each |$target| {
+    out::message("Applying ACL commands to target: ${target}")
 
-  $apply_results.each |$apply_result| {
-    if $apply_result['status'] == 'failed' {
-      fail("Failed to apply manifest to ${apply_result['target']}: ${apply_result['result']['_error']['msg']}")
-    } else {
-      out::message("Successfully applied manifest to ${apply_result['target']}")
+    $commands.each |$command| {
+      run_command($command, $target)
     }
   }
 
   out::message("Verifying ACL on targets")
 
   # Verify the ACL configuration
-  $targets.each |$target| {
+  $target_objects.each |$target| {
     $output = run_task('cisco_ios::command', $target, {'command' => "show access-lists ${acl_name}"})
     
     if $output.ok {
