@@ -1,4 +1,4 @@
-# bolt_module/plans/change_config.pp
+# aplly_config_puppetredo/plans/change_config.pp
 plan aplly_config_puppetredo::change_config(
   TargetSpec $targets,
   String $ip_range,
@@ -9,13 +9,13 @@ plan aplly_config_puppetredo::change_config(
   $running_config = run_task('cisco_ios::command', $targets, { 'command' => 'show running-config' })
   
   # Extract the running config output
-  $configs = $running_config.map |$result| {
-    $result['result']['stdout']
+  $configs = $running_config.result.map |$result| {
+    $result['stdout']
   }
 
   # Ensure ACL configuration is present
-  $targets.each |$target| {
-    $config = $configs[$targets.index($target)]
+  $targets.each |$target, $index| {
+    $config = $configs[$index]
     $acl_present = $config =~ /ip access-list standard ${acl_name}/ and $config =~ /permit ${ip_range} ${wildcard_mask}/
     
     if ! $acl_present {
