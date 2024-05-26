@@ -3,6 +3,7 @@ import time
 import json
 import random
 import re
+import os
 
 def generate_ip_range():
     ip_base = f"192.168.{random.randint(0, 255)}.0"
@@ -40,7 +41,7 @@ def count_packets(pcap_file):
 def run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory):
     result = subprocess.run(
         [
-            "bolt", "plan", "run", "aplly_config_puppetredo::change_config",
+            "bolt", "plan", "run", "aplly_config_puppetredo::apply_config_change",
             f"ip_range={ip_range}",
             f"wildcard_mask={wildcard_mask}",
             f"acl_name={acl_name}",
@@ -65,6 +66,11 @@ def main():
     )
     print("Connectivity check result:")
     print(connectivity_check.stdout)
+    
+    if connectivity_check.returncode != 0:
+        print("Failed to establish connectivity with targets.")
+        return
+    
     results = []
     for i in range(10):
         ip_range, wildcard_mask, acl_name = generate_ip_range()
@@ -73,11 +79,12 @@ def main():
         tcpdump_process, pcap_file = start_tcpdump(interface)
         time.sleep(1)  # Add a short delay
 
-        # Run the Bolt plan
-        acl_verification = run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory)
-
-        # Stop tcpdump
-        stop_tcpdump(tcpdump_process)
+        try:
+            # Run the Bolt plan
+            acl_verification = run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory)
+        finally:
+            # Stop tcpdump
+            stop_tcpdump(tcpdump_process)
 
         # Count packets
         packets_sent = count_packets(pcap_file)
@@ -92,6 +99,10 @@ def main():
             "network_packets_sent": packets_sent
         })
         print(f"Run {i+1}: ACL Verification={acl_verification}, Network Packets Sent={packets_sent}")
+        
+        # Clean up pcap file
+        if os.path.exists(pcap_file):
+            os.remove(pcap_file)
     
     with open("results.json", "w") as f:
         json.dump(results, f, indent=4)
