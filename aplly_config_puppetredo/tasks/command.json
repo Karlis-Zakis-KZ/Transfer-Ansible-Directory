@@ -1,0 +1,12 @@
+{
+  "description": "Run a command on Cisco IOS",
+  "parameters": {
+    "command": {
+      "type": "String",
+      "description": "The command to run"
+    }
+  },
+  "implementations": [
+    {"name": "command.sh", "requirements": ["shell"]}
+  ]
+}

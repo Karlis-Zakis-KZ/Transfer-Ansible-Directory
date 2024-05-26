@@ -1,0 +1,12 @@
+{
+  "description": "Apply a configuration on Cisco IOS",
+  "parameters": {
+    "config": {
+      "type": "String",
+      "description": "The configuration commands to apply"
+    }
+  },
+  "implementations": [
+    {"name": "config.sh", "requirements": ["shell"]}
+  ]
+}
