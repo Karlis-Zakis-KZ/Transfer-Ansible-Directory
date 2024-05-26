@@ -23,14 +23,16 @@ plan bolt_module::change_config(
   $target_objects.each |$target| {
     out::message("Applying ACL commands to target: ${target}")
 
-    $result_acl_command = run_command($acl_command, $target)
-    if !$result_acl_command.ok {
-      fail("Failed to run ACL command '${acl_command}' on target ${target}: ${result_acl_command['stderr']}")
-    }
+    $commands = [
+      $acl_command,
+      $acl_command_permit
+    ]
 
-    $result_acl_permit = run_command($acl_command_permit, $target)
-    if (!$result_acl_permit.ok) {
-      fail("Failed to run ACL permit command '${acl_command_permit}' on target ${target}: ${result_acl_permit['stderr']}")
+    $commands.each |$command| {
+      $result = run_command($command, $target)
+      if !$result.ok {
+        fail("Failed to run command '${command}' on target ${target}: ${result['stderr']}")
+      }
     }
   }
 
