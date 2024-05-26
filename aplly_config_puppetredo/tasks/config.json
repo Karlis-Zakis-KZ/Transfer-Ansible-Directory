@@ -1,16 +1,17 @@
 {
     "description": "Apply a configuration on Cisco IOS",
     "parameters": {
-      "config": {
-        "type": "String",
-        "description": "The configuration commands to apply"
+      "lines": {
+        "type": "Array[String]",
+        "description": "The configuration lines to apply"
+      },
+      "parents": {
+        "type": "Array[String]",
+        "description": "The parent configuration context"
       }
     },
     "implementations": [
-      {
-        "name": "config.sh",
-        "requirements": ["shell"]
-      }
+      {"name": "config.sh", "requirements": ["shell"]}
     ]
   }
   
