@@ -21,7 +21,7 @@ plan bolt_module::change_config(
 END
 
   # Apply the manifest to the targets
-  $apply_results = apply($targets, _catch_errors => true) |$apply_result| {
+  $apply_results = apply($targets, _catch_errors => true) || {
     if $apply_result['status'] == 'failed' {
       fail("Failed to apply manifest to ${apply_result['target']}: ${apply_result['result']['_error']['msg']}")
     } else {
