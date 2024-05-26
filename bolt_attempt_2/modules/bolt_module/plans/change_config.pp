@@ -22,8 +22,7 @@ END
 
   # Apply the manifest to the targets
   $apply_results = apply($targets, _catch_errors => true)
-  
-  # Handle the results of the apply
+
   $apply_results.each |$apply_result| {
     if $apply_result['status'] == 'failed' {
       fail("Failed to apply manifest to ${apply_result['target']}: ${apply_result['result']['_error']['msg']}")
