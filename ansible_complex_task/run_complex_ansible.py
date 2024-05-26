@@ -3,6 +3,12 @@ import time
 import json
 import random
 import re
+import os
+import logging
+from scapy.all import AsyncSniffer, wrpcap
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def generate_ip_range():
     ip_base = f"192.168.{random.randint(0, 255)}.0"
@@ -10,35 +16,32 @@ def generate_ip_range():
     acl_name = f"TEST_ACL_{random.randint(1, 1000)}"
     return ip_base, wildcard_mask, acl_name
 
-def start_tcpdump(interface="ens33", file_prefix="tcpdump_output"):
-    pcap_file = f"{file_prefix}.pcap"
-    process = subprocess.Popen(
-        ["sudo", "tcpdump", "-i", interface, "-w", pcap_file],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-    return process, pcap_file
+def run_playbook(playbook, ip_range, wildcard_mask, acl_name, interface, inventory, iteration, task_name):
+    # Ensure the playbook exists
+    if not os.path.exists(playbook):
+        logging.error(f"Playbook {playbook} does not exist.")
+        return {
+            "run": iteration,
+            "task": task_name,
+            "duration": 0,
+            "num_packets": 0,
+            "file_size": 0,
+            "data_size": 0,
+            "data_byte_rate": 0,
+            "data_bit_rate": 0,
+            "avg_packet_size": 0,
+            "avg_packet_rate": 0,
+            "error": f"Playbook {playbook} does not exist."
+        }
 
-def stop_tcpdump(process):
-    process.terminate()
-    process.wait()
+    # Start packet sniffing
+    logging.debug(f"Starting packet sniffing for {task_name} iteration {iteration}")
+    sniffer = AsyncSniffer(iface=interface)
+    sniffer.start()
 
-def count_packets(pcap_file):
-    result = subprocess.run(
-        ["capinfos", pcap_file],
-        capture_output=True,
-        text=True
-    )
-    print("capinfos output:")
-    print(result.stdout)
-    match = re.search(r"Number of packets\s+:\s+(\d+)", result.stdout)
-    if match:
-        return int(match.group(1))
-    return 0
-
-def run_playbook(playbook, ip_range, wildcard_mask, acl_name, interface, inventory):
     start_time = time.time()
-    tcpdump_process, pcap_file = start_tcpdump(interface, f"{playbook}_{acl_name}")
+
+    logging.debug(f"Running Ansible playbook {playbook} for {task_name} iteration {iteration}")
     result = subprocess.run(
         [
             "ansible-playbook",
@@ -48,14 +51,43 @@ def run_playbook(playbook, ip_range, wildcard_mask, acl_name, interface, invento
             "-e", f"wildcard_mask={wildcard_mask}",
             "-e", f"acl_name={acl_name}"
         ],
-        stdout=subprocess.DEVNULL,  # Redirect stdout to /dev/null
-        stderr=subprocess.DEVNULL   # Redirect stderr to /dev/null
+        capture_output=True,
+        text=True
     )
-    stop_tcpdump(tcpdump_process)
-    packets_sent = count_packets(pcap_file)
+
     end_time = time.time()
     duration = end_time - start_time
-    return duration, packets_sent
+
+    # Stop packet sniffing
+    packets = sniffer.stop()
+    pcap_file = f"{task_name}_packets_{iteration}.pcap"
+    wrpcap(pcap_file, packets)
+    logging.debug(f"Packet sniffing stopped for {task_name} iteration {iteration}")
+
+    num_packets = len(packets)
+    file_size = os.path.getsize(pcap_file) / 1024  # in KB
+    data_size = sum(len(pkt) for pkt in packets) / 1024  # in KB
+    data_byte_rate = data_size / duration if duration > 0 else 0  # in KBps
+    data_bit_rate = data_byte_rate * 8  # in kbps
+    avg_packet_size = (data_size * 1024) / num_packets if num_packets > 0 else 0  # in bytes
+    avg_packet_rate = num_packets / duration if duration > 0 else 0  # in packets/s
+
+    logging.debug(f"Iteration {iteration} completed in {duration:.2f} seconds")
+    logging.debug(f"STDOUT: {result.stdout}")
+    logging.debug(f"STDERR: {result.stderr}")
+
+    return {
+        "run": iteration,
+        "task": task_name,
+        "duration": duration,
+        "num_packets": num_packets,
+        "file_size": file_size,
+        "data_size": data_size,
+        "data_byte_rate": data_byte_rate,
+        "data_bit_rate": data_bit_rate,
+        "avg_packet_size": avg_packet_size,
+        "avg_packet_rate": avg_packet_rate
+    }
 
 def main():
     interface = "ens33"
@@ -67,29 +99,23 @@ def main():
         capture_output=True,
         text=True
     )
-    print("Connectivity check result:")
-    print(connectivity_check.stdout)
+    logging.debug("Connectivity check result:")
+    logging.debug(connectivity_check.stdout)
     results = []
     for i in range(10):
         ip_range, wildcard_mask, acl_name = generate_ip_range()
-        duration_configure, packets_sent_configure = run_playbook(configure_playbook, ip_range, wildcard_mask, acl_name, interface, inventory)
-        duration_revert, packets_sent_revert = run_playbook(revert_playbook, ip_range, wildcard_mask, acl_name, interface, inventory)
+        configure_stats = run_playbook(configure_playbook, ip_range, wildcard_mask, acl_name, interface, inventory, i+1, "configure")
+        revert_stats = run_playbook(revert_playbook, ip_range, wildcard_mask, acl_name, interface, inventory, i+1, "revert")
         results.append({
             "run": i + 1,
             "ip_range": ip_range,
             "wildcard_mask": wildcard_mask,
             "acl_name": acl_name,
-            "configure": {
-                "duration": duration_configure,
-                "network_packets_sent": packets_sent_configure
-            },
-            "revert": {
-                "duration": duration_revert,
-                "network_packets_sent": packets_sent_revert
-            }
+            "configure": configure_stats,
+            "revert": revert_stats
         })
-        print(f"Run {i+1}: Configure - Duration={duration_configure:.2f}s, Network Packets Sent={packets_sent_configure}")
-        print(f"Run {i+1}: Revert - Duration={duration_revert:.2f}s, Network Packets Sent={packets_sent_revert}")
+        logging.debug(f"Run {i+1}: Configure - Duration={configure_stats['duration']:.2f}s, Network Packets Sent={configure_stats['num_packets']}")
+        logging.debug(f"Run {i+1}: Revert - Duration={revert_stats['duration']:.2f}s, Network Packets Sent={revert_stats['num_packets']}")
     with open("results.json", "w") as f:
         json.dump(results, f, indent=4)
 
