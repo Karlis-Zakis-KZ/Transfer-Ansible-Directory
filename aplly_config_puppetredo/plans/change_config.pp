@@ -9,8 +9,8 @@ plan aplly_config_puppetredo::change_config(
   $running_config = run_task('cisco_ios::command', $targets, { 'command' => 'show running-config' })
   
   # Extract the running config output
-  $configs = $running_config.result.map |$result| {
-    $result['stdout']
+  $configs = $running_config.map |$result| {
+    $result['result']['stdout']
   }
 
   # Ensure ACL configuration is present
