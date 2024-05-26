@@ -109,6 +109,28 @@ def run_playbook(playbook, ip_range, wildcard_mask, acl_name, interface, invento
         "errors": errors
     }
 
+def verify_configurations(inventory):
+    verify_playbook = "verify_configurations.yml"
+    if not os.path.exists(verify_playbook):
+        logging.error(f"Verification playbook {verify_playbook} does not exist.")
+        return "Verification playbook does not exist."
+
+    logging.debug(f"Running Ansible playbook {verify_playbook} to verify configurations")
+    result = subprocess.run(
+        ["ansible-playbook", "-i", inventory, verify_playbook],
+        capture_output=True,
+        text=True
+    )
+
+    if result.returncode != 0:
+        logging.error(f"Verification playbook {verify_playbook} failed")
+        logging.error(f"STDERR: {result.stderr}")
+        return result.stderr
+    else:
+        logging.debug(f"Verification playbook {verify_playbook} completed successfully")
+        logging.debug(f"STDOUT: {result.stdout}")
+        return result.stdout
+
 def main():
     interface = "ens33"
     inventory = "hosts.ini"
@@ -136,6 +158,10 @@ def main():
         })
         logging.debug(f"Run {i+1}: Configure - Duration={configure_stats['duration']:.2f}s, Network Packets Sent={configure_stats['num_packets']}")
         logging.debug(f"Run {i+1}: Revert - Duration={revert_stats['duration']:.2f}s, Network Packets Sent={revert_stats['num_packets']}")
+
+    verification_output = verify_configurations(inventory)
+    logging.debug(f"Verification Output: {verification_output}")
+
     with open("results.json", "w") as f:
         json.dump(results, f, indent=4)
 
