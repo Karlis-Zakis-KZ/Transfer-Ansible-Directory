@@ -22,7 +22,7 @@ plan bolt_module::change_config(
   # Define the commands to apply the ACL
   $commands = [
     $acl_command,
-    $acl_command_permit,
+    $acl_command_permit
   ]
 
   # Apply the ACL commands to the targets
@@ -30,7 +30,7 @@ plan bolt_module::change_config(
     out::message("Applying ACL commands to target: ${target}")
 
     $commands.each |$command| {
-      $result = run_command($command, $target, '_run_as' => 'karlis', 'password' => 'cisco')
+      $result = run_command($command, $target)
       if !$result.ok {
         fail("Failed to run command '${command}' on target ${target}: ${result['stderr']}")
       }
