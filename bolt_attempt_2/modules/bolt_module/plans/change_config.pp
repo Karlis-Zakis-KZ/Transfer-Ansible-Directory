@@ -13,13 +13,12 @@ plan bolt_module::change_config(
   apply_prep($targets)
 
   # Define the configuration manifest
-  $manifest = @("END"
-ios_config { 'Set ACL':
-  command => "${acl_command}
-  ${acl_command_permit}"
-}
+  $manifest = @("END")
+    ios_config { 'Set ACL':
+      command => "${acl_command}
+      ${acl_command_permit}"
+    }
 END
-  )
 
   # Apply the manifest to the targets
   $apply_results = apply($targets, _catch_errors => true) |$apply_result| {
