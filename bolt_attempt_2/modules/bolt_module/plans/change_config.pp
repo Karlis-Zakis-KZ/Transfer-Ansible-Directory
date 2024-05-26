@@ -29,6 +29,7 @@ plan bolt_module::change_config(
     ]
 
     $commands.each |$command| {
+      out::message("Running command on ${target}: ${command}")
       $result = run_command($command, $target)
       if !$result.ok {
         fail("Failed to run command '${command}' on target ${target}: ${result['stderr']}")
@@ -40,11 +41,12 @@ plan bolt_module::change_config(
 
   # Verify the ACL configuration
   $target_objects.each |$target| {
+    out::message("Verifying ACL on target: ${target}")
     $output = run_task('cisco_ios::command', $target, {'command' => "show access-lists ${acl_name}"})
     
     if $output.ok {
       $stdout = $output.result['stdout']
-      out::message($stdout)
+      out::message("ACL verification output for ${target}: ${stdout}")
     } else {
       $stderr = $output.result['stderr']
       fail("Error verifying ACL on ${target}: ${stderr}")
