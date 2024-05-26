@@ -1,0 +1,10 @@
+{
+    "description": "Run iOS command",
+    "parameters": {
+      "commands": {
+        "type": "Array",
+        "description": "Commands to run on the device"
+      }
+    }
+  }
+  
