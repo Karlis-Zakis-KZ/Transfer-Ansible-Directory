@@ -1,20 +1,76 @@
-# bolt_project/plans/change_config.pp
-plan bolt_project::change_config(
-  TargetSpec $targets
+plan bolt_module::change_config(
+  TargetSpec $targets,
+  String $ip_range,
+  String $wildcard_mask,
+  String $acl_name
 ) {
-  $cmds = 'show running-config'
-  $acl_lines = "ip access-list standard TEST_ACL\npermit 192.168.0.0 0.0.255.255"
+  # Define the ACL commands
+  $acl_command = "ip access-list extended ${acl_name}"
+  $acl_command_permit = "permit ip any ${ip_range} ${wildcard_mask}"
 
-  $targets.each |$target| {
-    # Gather current running config
-    $result = run_task('cisco_ios::cli_command', $target, { 'command' => $cmds, 'raw' => false })
-    $running_config = $result[0]['result']['stdout']
+  out::message("Target string: ${targets}")
 
-    # Check if the ACL configuration is already present
-    if !($running_config =~ /ip access-list standard TEST_ACL/ and $running_config =~ /permit 192.168.0.0 0.0.255.255/) {
-      run_task('cisco_ios::cli_command', $target, { 'command' => $acl_lines, 'raw' => false })
+  # Convert the TargetSpec to an array of Target objects
+  $target_objects = get_targets($targets)
+
+  # Print the target objects for debugging
+  out::message("Target objects: ${target_objects}")
+
+  # Prepare the targets for applying Puppet resources
+  apply_prep($targets)
+
+  # Function to check if ACL already exists on the target
+  function check_acl {
+    $target = $1
+    $acl_name = $2
+    $ip_range = $3
+    $wildcard_mask = $4
+    $check_command = "show running-config | include ip access-list extended ${acl_name}"
+    $check_result = run_command($check_command, $target)
+
+    if $check_result.ok {
+      $running_config = $check_result.result['stdout']
+      return $running_config.any |$line| { 
+        $line =~ /ip access-list extended ${acl_name}/ and $line =~ /permit ip any ${ip_range} ${wildcard_mask}/
+      }
     } else {
-      out::message("Configuration already present on ${target.uri}")
+      fail("Failed to check ACL on target ${target}: ${check_result['stderr']}")
+    }
+  }
+
+  # Apply the ACL commands to the targets
+  $target_objects.each |$target| {
+    if !check_acl($target, $acl_name, $ip_range, $wildcard_mask) {
+      out::message("Applying ACL commands to target: ${target}")
+
+      $commands = [
+        $acl_command,
+        $acl_command_permit,
+      ]
+
+      $commands.each |$command| {
+        $result = run_command($command, $target)
+        if !$result.ok {
+          fail("Failed to run command '${command}' on target ${target}: ${result['stderr']}")
+        }
+      }
+    } else {
+      out::message("ACL already configured on target: ${target}")
+    }
+  }
+
+  out::message("Verifying ACL on targets")
+
+  # Verify the ACL configuration
+  $target_objects.each |$target| {
+    $output = run_task('cisco_ios::command', $target, {'command' => "show access-lists ${acl_name}"})
+
+    if $output.ok {
+      $stdout = $output.result['stdout']
+      out::message($stdout)
+    } else {
+      $stderr = $output.result['stderr']
+      fail("Error verifying ACL on ${target}: ${stderr}")
     }
   }
 }
