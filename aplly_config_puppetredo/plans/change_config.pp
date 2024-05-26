@@ -1,5 +1,5 @@
 # bolt_module/plans/change_config.pp
-plan bolt_module::change_config(
+plan aplly_config_puppetredo::change_config(
   TargetSpec $targets,
   String $ip_range,
   String $wildcard_mask,

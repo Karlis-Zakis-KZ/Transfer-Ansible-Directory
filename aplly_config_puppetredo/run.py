@@ -40,7 +40,7 @@ def count_packets(pcap_file):
 def run_bolt_plan(ip_range, wildcard_mask, acl_name, inventory):
     result = subprocess.run(
         [
-            "bolt", "plan", "run", "bolt_module::change_config",
+            "bolt", "plan", "run", "aplly_config_puppetredo::change_config",
             f"ip_range={ip_range}",
             f"wildcard_mask={wildcard_mask}",
             f"acl_name={acl_name}",
