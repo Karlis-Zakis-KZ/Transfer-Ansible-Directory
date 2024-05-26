@@ -72,6 +72,10 @@ def run_playbook(playbook, ip_range, wildcard_mask, acl_name, interface, invento
     avg_packet_size = (data_size * 1024) / num_packets if num_packets > 0 else 0  # in bytes
     avg_packet_rate = num_packets / duration if duration > 0 else 0  # in packets/s
 
+    # Extract warnings and errors
+    warnings = re.findall(r"\[WARNING\]: (.+)", result.stderr)
+    errors = re.findall(r"\[ERROR\]: (.+)", result.stderr)
+
     if result.returncode != 0:
         logging.error(f"Playbook {playbook} failed for {task_name} iteration {iteration}")
         logging.error(f"STDERR: {result.stderr}")
@@ -80,6 +84,14 @@ def run_playbook(playbook, ip_range, wildcard_mask, acl_name, interface, invento
         logging.debug(f"Iteration {iteration} completed in {duration:.2f} seconds")
         logging.debug(f"STDOUT: {result.stdout}")
         error_msg = None
+
+    if warnings:
+        for warning in warnings:
+            logging.warning(warning)
+
+    if errors:
+        for error in errors:
+            logging.error(error)
 
     return {
         "run": iteration,
@@ -92,7 +104,9 @@ def run_playbook(playbook, ip_range, wildcard_mask, acl_name, interface, invento
         "data_bit_rate": data_bit_rate,
         "avg_packet_size": avg_packet_size,
         "avg_packet_rate": avg_packet_rate,
-        "error": error_msg
+        "error": error_msg,
+        "warnings": warnings,
+        "errors": errors
     }
 
 def main():
