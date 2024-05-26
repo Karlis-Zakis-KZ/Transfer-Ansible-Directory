@@ -4,7 +4,7 @@ plan aplly_config_puppetredo::apply_config_change (
   String $wildcard_mask,
   String $acl_name
 ) {
-  $results = run_task('ios_command', $targets, {
+  $results = run_task('cisco_ios::command', $targets, {
     commands => ['show running-config']
   })
 
@@ -12,7 +12,7 @@ plan aplly_config_puppetredo::apply_config_change (
     $running_config = $result['result']['stdout'][0]
 
     unless $running_config =~ /ip access-list standard ${acl_name}/ and $running_config =~ /permit ${ip_range} ${wildcard_mask}/ {
-      run_task('ios_config', $result['target'], {
+      run_task('cisco_ios::config', $result['target'], {
         lines   => ["permit ${ip_range} ${wildcard_mask}"],
         parents => ["ip access-list standard ${acl_name}"]
       })
